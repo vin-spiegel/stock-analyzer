@@ -428,13 +428,10 @@ def nday_analysis_tab():
     #                             help="하락일로부터 며칠 후를 분석할지 선택")
 
     with col3:
-    use_custom = st.checkbox("직접 일수 입력하기", value=False)
+        st.markdown("#### 📆 분석 기간 (일)")
     
-    if use_custom:
-        days_after = st.number_input("분석 기간 (일)", min_value=1, max_value=365*5, value=3,
-                                     help="하락일로부터 며칠 후를 분석할지 입력 (최대 5년까지)")
-    else:
-        days_dict = {
+    # 기본 옵션 (표시 예쁘게)
+        days_options = {
             "1일": 1,
             "3일": 3,
             "5일": 5,
@@ -446,8 +443,12 @@ def nday_analysis_tab():
             "1년 (365일)": 365
         }
 
-        selected_label = st.selectbox("📆 분석 기간 선택", options=list(days_dict.keys()), index=2)
-        days_after = days_dict[selected_label]
+        # selectbox와 number_input을 같이 제공
+        selected_label = st.selectbox("기본 기간 선택", options=list(days_options.keys()), index=2)
+        custom_input = st.number_input("또는 직접 입력", min_value=1, max_value=365*5, value=days_options[selected_label], step=1)
+    
+        # 최종 days_after는 직접 입력 값 사용
+        days_after = int(custom_input)
 
 
 
