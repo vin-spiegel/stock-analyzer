@@ -572,15 +572,15 @@ def nday_analysis_tab():
                     display_data = display_data.round(2)
 
                     display_data['결과'] = display_data['결과'].map({
-                        'Win': f'{days_after}일 후 ↓',
-                        'Lose': f'{days_after}일 후 ↑'
+                        'Win': f'{days_after}일 뒤 주가하락',
+                        'Lose': f'{days_after}일 뒤 주가상승'
                     })
                     
                     # Color code the results
                     def color_result(val):
-                        if val == f'{days_after}일 후 ↓':
+                        if val == f'{days_after}일 뒤 주가하락':
                             return 'background-color: #f8d7da; color: #721c24'
-                        elif val == f'{days_after}일 후 ↑':
+                        elif val == f'{days_after}일 뒤 주가상승':
                             return 'background-color: #d4edda; color: #155724'
                         return ''
                         
