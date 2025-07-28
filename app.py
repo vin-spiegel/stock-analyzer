@@ -106,7 +106,7 @@ st.markdown("""
         color: #721c24;
     }
     .win-box h3, .win-box h1 {
-        color: #155724;
+        color: #721c24;
     }
     .win-box p {
         color: #6c7b6f;
@@ -117,7 +117,7 @@ st.markdown("""
         color: #155724;
     }
     .lose-box h3, .lose-box h1 {
-        color: #721c24;
+        color: #155724;
     }
     .lose-box p {
         color: #856969;
