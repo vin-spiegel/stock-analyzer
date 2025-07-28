@@ -395,7 +395,7 @@ def market_sentiment_tab():
 
 # Tab 2: N-Day Drop Analysis
 def nday_analysis_tab():
-    st.markdown('<div class="sub-header">📉 N일 후 반등등 여부 분석기</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">📉 N일 후 반등 여부 분석기</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="info-box">
