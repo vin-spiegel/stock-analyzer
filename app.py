@@ -537,21 +537,21 @@ def nday_analysis_tab():
                     strategy_color = "win-box"
                     strategy_text = f"""
                     <h4>📉 즉시 매도 전략 추천</h4>
-                    <p><strong>{winrate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
+                    <p><strong>{winrate:.1f}%</strong>*100의 확률로 즉시 매도가 유리했습니다.</p>
                     <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 즉시 손절매를 고려하세요.</p>
                     """
                 elif winrate < 0.4:
                     strategy_color = "lose-box"
                     strategy_text = f"""
                     <h4>⏰ 대기 전략 추천</h4>
-                    <p><strong>{(1-winrate):.1f}%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
+                    <p><strong>{(1-winrate):.1f}%</strong>*100의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
                     <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일 정도는 기다려보세요.</p>
                     """
                 else:
                     strategy_color = "result-box"
                     strategy_text = f"""
                     <h4>⚖️ 중립적 결과</h4>
-                    <p>즉시 매도와 대기 전략의 성공률이 비슷합니다 ({winrate:.1f}% vs {(1-winrate):.1f}%).</p>
+                    <p>즉시 매도와 대기 전략의 성공률이 비슷합니다 ({winrate:.1f}*100% vs {(1-winrate):.1f}*100%).</p>
                     <p>💡 <strong>추천</strong>: 다른 지표와 함께 종합적으로 판단하세요.</p>
                     """
                 
