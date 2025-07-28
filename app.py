@@ -364,7 +364,7 @@ def market_sentiment_tab():
         trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
         percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
         display_metric("🚀 QQQ vs 200일 이동평균", 
-                      f"현재: {qqq_price:.2f}$ | 200일 평균: {qqq_sma:.2f}$ ({percentage_diff:+.1f}%)", 
+                      f"현재: ${qqq_price:.2f} | 200일 평균: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
                       f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
                       price_vs_sma)
     else:
