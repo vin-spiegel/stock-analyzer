@@ -514,7 +514,7 @@ def nday_analysis_tab():
                     win_percentage = (win_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box win-box">
-                        <h3>🔴 Lose (즉시 매도가 유리)</h3>
+                        <h3>🔴 (즉시 매도가 유리)</h3>
                         <h1>{win_count}회 ({win_percentage:.1f}%)</h1>
                         <p>하락일에 즉시 매도했다면 {days_after}일 후보다 높은 가격에 판 것</p>
                     </div>
@@ -524,7 +524,7 @@ def nday_analysis_tab():
                     lose_percentage = (lose_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box lose-box">
-                        <h3>🟢 Win (기다리는 것이 유리)</h3>
+                        <h3>🟢 (기다리는 것이 유리)</h3>
                         <h1>{lose_count}회 ({lose_percentage:.1f}%)</h1>
                         <p>{days_after}일 기다렸다면 하락일보다 높은 가격에 판 것</p>
                     </div>
@@ -535,14 +535,14 @@ def nday_analysis_tab():
                 st.subheader("💰 투자 전략 제안")
                 
                 if winrate > 0.56:
-                    strategy_color = "win-box"
+                    strategy_color = "lose-box"
                     strategy_text = f"""
                     <h4>📉 즉시 매도 전략 추천</h4>
                     <p><strong>{rate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
                     <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 즉시 손절매를 고려하세요.</p>
                     """
                 elif winrate < 0.44:
-                    strategy_color = "lose-box"
+                    strategy_color = "win-box"
                     strategy_text = f"""
                     <h4>⏰ 대기 전략 추천</h4>
                     <p><strong>{(100-rate):.1f}%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
