@@ -544,7 +544,7 @@ def nday_analysis_tab():
                     strategy_color = "lose-box"
                     strategy_text = f"""
                     <h4>⏰ 대기 전략 추천</h4>
-                    <p><strong>{(1-winrate):.1f}%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
+                    <p><strong>({(1-winrate):.1f}*100)%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
                     <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일 정도는 기다려보세요.</p>
                     """
                 else:
