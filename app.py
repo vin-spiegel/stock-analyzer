@@ -644,12 +644,40 @@ def nday_analysis_tab():
                 
                 st.markdown(f'<div class="{strategy_color}">{strategy_text}</div>', unsafe_allow_html=True)
                 
-                # Recent examples
-                if len(signal_days) > 0:
-                    st.markdown("---")
-                    st.subheader("📅 최근 하락 신호 사례 (최근 10개)")
+                # # Recent examples
+                # if len(signal_days) > 0:
+                #     st.markdown("---")
+                #     st.subheader("📅 최근 하락 신호 사례 (최근 10개)")
                     
-                    recent_signals = signal_days.tail(10).copy()
+                #     recent_signals = signal_days.tail(10).copy()
+
+                    if len(signal_days) > 0:
+                    st.markdown("---")
+                    
+                    # 사례 개수 선택 UI 추가
+                    col_header, col_slider = st.columns([2, 1])
+                    
+                    with col_header:
+                        st.subheader("📅 최근 하락 신호 사례")
+                    
+                    with col_slider:
+                        max_examples = min(len(signal_days), 50)  # 최대 50개까지
+                        default_examples = min(10, max_examples)  # 기본값 10개
+                        
+                        num_examples = st.slider(
+                            "표시할 사례 수", 
+                            min_value=5, 
+                            max_value=max_examples, 
+                            value=default_examples,
+                            step=5,
+                            help=f"최근 {max_examples}개 중에서 선택 가능"
+                        )
+                    
+                    st.write(f"**총 {len(signal_days)}개 중 최근 {num_examples}개 표시**")
+                    
+                    recent_signals = signal_days.tail(num_examples).copy()
+
+                    
                     recent_signals.index = recent_signals.index.strftime('%Y-%m-%d')
                     
                     # Prepare display data
@@ -688,8 +716,20 @@ def nday_analysis_tab():
                     styled_df = display_data.style.applymap(color_result, subset=['결과']) \
                                                   .applymap(color_change, subset=[f'{days_after}일간변화(%)'])
                     
-                    st.dataframe(styled_df, use_container_width=True)
-                
+                    # st.dataframe(styled_df, use_container_width=True)
+                    # 표시할 데이터가 많을 때 스크롤 가능한 높이 설정
+                    table_height = min(400, num_examples * 35 + 50)  # 행 수에 따라 높이 조절
+                    
+                    st.dataframe(
+                        styled_df, 
+                        use_container_width=True,
+                        height=table_height
+                    )
+                    
+                    if num_examples >= 20:
+                        st.info("💡 많은 데이터를 표시 중입니다. 테이블을 스크롤하여 모든 데이터를 확인하세요.")
+                        
+                    
                 # Additional statistics
                 st.markdown("---")
                 st.subheader("📈 상세 통계")
