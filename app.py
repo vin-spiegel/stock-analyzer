@@ -662,14 +662,14 @@ def nday_analysis_tab():
                     
                     with col_slider:
                         max_examples = min(len(signal_days), 50)  # 최대 50개까지
-                        default_examples = min(10, max_examples)  # 기본값 10개
+                        default_examples = min(0, max_examples)  # 기본값 10개
                         
                         num_examples = st.slider(
                             "표시할 사례 수", 
-                            min_value=5, 
+                            min_value=0, 
                             max_value=max_examples, 
                             value=default_examples,
-                            step=5,
+                            step=10,
                             help=f"최근 {max_examples}개 중에서 선택 가능"
                         )
                     
