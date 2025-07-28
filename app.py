@@ -485,10 +485,27 @@ def nday_analysis_tab():
                     st.warning(f"⚠️ {drop_threshold}% 이상 하락한 날이 없습니다. 기준을 낮춰보세요.")
                     return
                 
+                # # Add N-day later data
+                # signal_days['Price_Today'] = signal_days['Close']
+                # signal_days[f'Price_{days_after}D_Later'] = data['Close'].shift(-days_after).loc[signal_days.index]
+                # signal_days = signal_days.dropna(subset=[f'Price_{days_after}D_Later'])
+
                 # Add N-day later data
                 signal_days['Price_Today'] = signal_days['Close']
-                signal_days[f'Price_{days_after}D_Later'] = data['Close'].shift(-days_after).loc[signal_days.index]
+                
+                # 정확한 거래일 기준으로 N일 후 가격 계산
+                signal_days = add_nday_later_prices(signal_days, data, days_after)
+                
+                # NaN 값 제거 (N일 후 데이터가 없는 경우)
                 signal_days = signal_days.dropna(subset=[f'Price_{days_after}D_Later'])
+                
+                # 실제 거래일 수 검증을 위한 추가 정보 표시
+                if len(signal_days) > 0:
+                    sample_signal = signal_days.index[0]
+                    sample_future_date = get_trading_day_after(data.index, sample_signal, days_after)
+                    if sample_future_date:
+                        actual_calendar_days = (sample_future_date - sample_signal).days
+                        st.info(f"📅 거래일 기준 {days_after}일 = 실제 달력일 약 {actual_calendar_days}일 (주말/공휴일 포함)"
                 
                 if len(signal_days) == 0:
                     st.warning(f"⚠️ {days_after}일 후 데이터가 있는 하락일이 없습니다. 기간을 조정해보세요.")
