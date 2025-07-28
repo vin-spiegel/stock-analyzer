@@ -467,7 +467,7 @@ def nday_analysis_tab():
                 
                 # Win/Lose 판단
                 signal_days['Result'] = signal_days.apply(
-                    lambda row: 'Lose' if row['Price_Today'] > row[f'Price_{days_after}D_Later'] else 'Win',
+                    lambda row: 'Win' if row['Price_Today'] > row[f'Price_{days_after}D_Later'] else 'Lose',
                     axis=1
                 )
                 
