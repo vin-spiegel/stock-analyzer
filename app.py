@@ -429,7 +429,9 @@ def nday_analysis_tab():
     
     with col4:
         start_date = st.date_input("📅 분석 시작일", 
-                                 value=pd.to_datetime("2018-01-01"),
+                                 value=pd.to_datetime("2020-01-01"),
+                                 min_value=pd.to_datetime("1990-01-01"),  # 원하는 최소 날짜
+                                 max_value=pd.to_datetime("today"),       # 최대 날짜는 오늘로 제한
                                  help="이 날짜부터 현재까지 분석")
     
     if st.button("🔍 분석 실행", type="primary", use_container_width=True):
