@@ -541,7 +541,7 @@ def nday_analysis_tab():
                     strategy_text = f"""
                     <h4>📉 즉시 매도 전략 추천</h4>
                     <p><strong>{rate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
-                    <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 즉시 손절매를 고려하세요.</p>
+                    <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 매도를 고려하세요.</p>
                     """
                 elif winrate < 0.45:
                     strategy_color = "lose-box"
