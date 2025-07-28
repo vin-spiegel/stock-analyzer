@@ -285,39 +285,45 @@ def interpret_rsi(rsi):
 
 def get_trading_day_after(data_index, target_date, days_after):
     """
-    특정 날짜로부터 정확히 N 거래일 후의 날짜를 찾는 함수
+    특정 날짜로부터 정확히 N 달력일 후의 가장 가까운 거래일을 찾는 함수
     """
     try:
-        # target_date의 인덱스 위치 찾기
-        target_idx = data_index.get_loc(target_date)
+        # N 달력일 후의 날짜 계산
+        target_calendar_date = target_date + pd.Timedelta(days=days_after)
         
-        # N 거래일 후의 인덱스 계산
-        future_idx = target_idx + days_after
+        # 해당 날짜 이후의 첫 번째 거래일 찾기
+        future_dates = data_index[data_index >= target_calendar_date]
         
-        # 인덱스가 범위를 벗어나지 않는지 확인
-        if future_idx < len(data_index):
-            return data_index[future_idx]
+        if len(future_dates) > 0:
+            return future_dates[0]
         else:
             return None
     except (KeyError, IndexError):
         return None
 
+
 def add_nday_later_prices(signal_days, data, days_after):
     """
-    각 신호일로부터 정확히 N 거래일 후의 가격을 추가하는 함수
+    각 신호일로부터 정확히 N 달력일 후의 가격을 추가하는 함수
     """
     nday_later_prices = []
+    actual_days_list = []
     
     for signal_date in signal_days.index:
-        # N 거래일 후의 날짜 찾기
+        # N 달력일 후의 거래일 찾기
         future_date = get_trading_day_after(data.index, signal_date, days_after)
         
         if future_date is not None and future_date in data.index:
             nday_later_prices.append(data.loc[future_date, 'Close'])
+            # 실제 경과된 달력일 계산
+            actual_days = (future_date - signal_date).days
+            actual_days_list.append(actual_days)
         else:
             nday_later_prices.append(None)
+            actual_days_list.append(None)
     
     signal_days[f'Price_{days_after}D_Later'] = nday_later_prices
+    signal_days[f'Actual_Days_Later'] = actual_days_list
     return signal_days
 
 def display_metric(title, value, interpretation, sentiment):
@@ -536,13 +542,10 @@ def nday_analysis_tab():
                 # NaN 값 제거 (N일 후 데이터가 없는 경우)
                 signal_days = signal_days.dropna(subset=[f'Price_{days_after}D_Later'])
                 
-                # 실제 거래일 수 검증을 위한 추가 정보 표시
+                # 실제 달력일 수 검증을 위한 추가 정보 표시
                 if len(signal_days) > 0:
-                    sample_signal = signal_days.index[0]
-                    sample_future_date = get_trading_day_after(data.index, sample_signal, days_after)
-                    if sample_future_date:
-                        actual_calendar_days = (sample_future_date - sample_signal).days
-                        st.info(f"📅 거래일 기준 {days_after}일 = 실제 달력일 약 {actual_calendar_days}일 (주말/공휴일 포함)")
+                    avg_actual_days = signal_days['Actual_Days_Later'].mean()
+                    st.info(f"📅 목표: {days_after}일 후 → 실제 평균: {avg_actual_days:.1f}일 후 데이터 사용 (주말/공휴일로 인한 차이)")
                 
                 if len(signal_days) == 0:
                     st.warning(f"⚠️ {days_after}일 후 데이터가 있는 하락일이 없습니다. 기간을 조정해보세요.")
