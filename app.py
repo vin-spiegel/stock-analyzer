@@ -26,7 +26,7 @@ st.markdown("""
     .sub-header {
         font-size: 1.5rem;
         font-weight: bold;
-        margin-bottom: 1rem;
+        rgin-bottom: 1rem;
         color: #333;
     }
     .metric-container {
@@ -364,7 +364,7 @@ def market_sentiment_tab():
         trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
         percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
         display_metric("🚀 QQQ vs 200일 이동평균", 
-                      f"현재: ${qqq_price:.2f} | 200일MA: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
+                      f"현재: ${qqq_price:.2f} | 200일 이동 평균선: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
                       f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
                       price_vs_sma)
     else:
@@ -379,7 +379,7 @@ def market_sentiment_tab():
             <li><strong>VIX</strong>: 시장 변동성 예상 지수 (낮을수록 안정, 높을수록 불안)</li>
             <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 (1.0 이상시 하락 베팅 우세)</li>
             <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
-            <li><strong>QQQ vs 200일MA</strong>: 나스닥 ETF의 장기 추세 분석</li>
+            <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
         </ul>
         <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
             💡 <strong>팁</strong>: 여러 지표를 종합적으로 해석하여 투자 판단에 활용하세요.
