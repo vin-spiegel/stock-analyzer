@@ -578,9 +578,9 @@ def nday_analysis_tab():
                     
                     # Color code the results
                     def color_result(val):
-                        if val == f'{days_after}일후 주가 하락':
+                        if val == f'{days_after}일 후 ↓':
                             return 'background-color: #f8d7da; color: #721c24'
-                        elif val == f'{days_after}일후 주가 상승':
+                        elif val == f'{days_after}일 후 ↑':
                             return 'background-color: #d4edda; color: #155724'
                         return ''
                         
