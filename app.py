@@ -651,7 +651,7 @@ def nday_analysis_tab():
                     
                 #     recent_signals = signal_days.tail(10).copy()
 
-                    if len(signal_days) > 0:
+                if len(signal_days) > 0:
                     st.markdown("---")
                     
                     # 사례 개수 선택 UI 추가
