@@ -573,9 +573,9 @@ def nday_analysis_tab():
                     
                     # Color code the results
                     def color_result(val):
-                        if val == 'Win':
+                        if val == 'Lose':
                             return 'background-color: #d4edda; color: #155724'
-                        elif val == 'Lose':
+                        elif val == 'Win':
                             return 'background-color: #f8d7da; color: #721c24'
                         return ''
                     
