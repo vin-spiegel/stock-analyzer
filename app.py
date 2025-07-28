@@ -101,9 +101,9 @@ st.markdown("""
         margin-bottom: 0;
     }
     .win-box {
-        background-color: #f8fff9;
-        border-color: #28a745;
-        color: #155724;
+        background-color: #fff8f8;
+        border-color: #dc3545;
+        color: #721c24;
     }
     .win-box h3, .win-box h1 {
         color: #155724;
@@ -112,9 +112,9 @@ st.markdown("""
         color: #6c7b6f;
     }
     .lose-box {
-        background-color: #fff8f8;
-        border-color: #dc3545;
-        color: #721c24;
+        background-color: #f8fff9;
+        border-color: #28a745;
+        color: #155724;
     }
     .lose-box h3, .lose-box h1 {
         color: #721c24;
