@@ -444,7 +444,7 @@ def nday_analysis_tab():
         selected_label = st.selectbox(
             "📆 분석 기간 (일)", 
             options=list(day_options.keys()),
-            index=2,  # "5일"이 기본값
+            index=1,  # "3일"이 기본값
             help="하락일로부터 며칠 후를 분석할지 선택"
         )
     
