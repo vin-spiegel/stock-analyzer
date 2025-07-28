@@ -421,11 +421,36 @@ def nday_analysis_tab():
                                  value=1.0, step=0.5,
                                  help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
     
+    # with col3:
+    #     days_after = st.selectbox("📆 분석 기간 (일)", 
+    #                             options=[1, 3, 5, 7, 14, 30, 90, 180, 365],
+    #                             index=2,  # 기본값: 3일
+    #                             help="하락일로부터 며칠 후를 분석할지 선택")
+
     with col3:
-        days_after = st.selectbox("📆 분석 기간 (일)", 
-                                options=[1, 3, 5, 7, 14, 30, 90, 180, 365],
-                                index=2,  # 기본값: 3일
-                                help="하락일로부터 며칠 후를 분석할지 선택")
+    use_custom = st.checkbox("직접 일수 입력하기", value=False)
+    
+    if use_custom:
+        days_after = st.number_input("분석 기간 (일)", min_value=1, max_value=365*5, value=3,
+                                     help="하락일로부터 며칠 후를 분석할지 입력 (최대 5년까지)")
+    else:
+        days_dict = {
+            "1일": 1,
+            "3일": 3,
+            "5일": 5,
+            "1주 (7일)": 7,
+            "2주 (14일)": 14,
+            "1개월 (30일)": 30,
+            "3개월 (90일)": 90,
+            "6개월 (180일)": 180,
+            "1년 (365일)": 365
+        }
+
+        selected_label = st.selectbox("📆 분석 기간 선택", options=list(days_dict.keys()), index=2)
+        days_after = days_dict[selected_label]
+
+
+
     
     with col4:
         start_date = st.date_input("📅 분석 시작일", 
