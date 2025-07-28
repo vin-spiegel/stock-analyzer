@@ -572,8 +572,8 @@ def nday_analysis_tab():
                     display_data = display_data.round(2)
 
                     display_data['결과'] = display_data['결과'].map({
-                        'Win': f'{days_after}일후 주가 하락',
-                        'Lose': f'{days_after}일후 주가 상승'
+                        'Win': f'{days_after}일 후 ↓',
+                        'Lose': f'{days_after}일 후 ↑'
                     })
                     
                     # Color code the results
