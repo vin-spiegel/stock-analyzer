@@ -395,7 +395,7 @@ def market_sentiment_tab():
 
 # Tab 2: N-Day Drop Analysis
 def nday_analysis_tab():
-    st.markdown('<div class="sub-header">📉 N일 후 하락 여부 분석기</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">📉 N일 후 반등등 여부 분석기</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="info-box">
@@ -467,7 +467,7 @@ def nday_analysis_tab():
                 
                 # Win/Lose 판단
                 signal_days['Result'] = signal_days.apply(
-                    lambda row: 'Win' if row['Price_Today'] > row[f'Price_{days_after}D_Later'] else 'Lose',
+                    lambda row: 'Lose' if row['Price_Today'] > row[f'Price_{days_after}D_Later'] else 'Win',
                     axis=1
                 )
                 
@@ -514,7 +514,7 @@ def nday_analysis_tab():
                     win_percentage = (win_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box win-box">
-                        <h3>🟢 Win (즉시 매도가 유리)</h3>
+                        <h3>🔴 Lose (즉시 매도가 유리)</h3>
                         <h1>{win_count}회 ({win_percentage:.1f}%)</h1>
                         <p>하락일에 즉시 매도했다면 {days_after}일 후보다 높은 가격에 판 것</p>
                     </div>
@@ -524,7 +524,7 @@ def nday_analysis_tab():
                     lose_percentage = (lose_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box lose-box">
-                        <h3>🔴 Lose (기다리는 것이 유리)</h3>
+                        <h3>🟢 Win (기다리는 것이 유리)</h3>
                         <h1>{lose_count}회 ({lose_percentage:.1f}%)</h1>
                         <p>{days_after}일 기다렸다면 하락일보다 높은 가격에 판 것</p>
                     </div>
