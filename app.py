@@ -429,7 +429,7 @@ def nday_analysis_tab():
     
     with col4:
         start_date = st.date_input("📅 분석 시작일", 
-                                 value=pd.to_datetime("2000-01-01"),
+                                 value=pd.to_datetime("2018-01-01"),
                                  help="이 날짜부터 현재까지 분석")
     
     if st.button("🔍 분석 실행", type="primary", use_container_width=True):
