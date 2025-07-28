@@ -393,7 +393,7 @@ def market_sentiment_tab():
         time.sleep(60)
         st.rerun()
 
-# Tab 2: N-Day Drop Analysis (개선된 버전)
+# Tab 2: N-Day Drop Analysis
 def nday_analysis_tab():
     st.markdown('<div class="sub-header">📉 N일 후 하락 여부 분석기</div>', unsafe_allow_html=True)
     
@@ -558,146 +558,42 @@ def nday_analysis_tab():
                 
                 st.markdown(f'<div class="{strategy_color}">{strategy_text}</div>', unsafe_allow_html=True)
                 
-                # Recent examples with enhanced viewing options
+                # Recent examples
                 if len(signal_days) > 0:
                     st.markdown("---")
-                    st.subheader("📅 하락 신호 사례 상세 보기")
+                    st.subheader("📅 최근 하락 신호 사례 (최근 10개)")
                     
-                    # 옵션 선택 컬럼
-                    view_col1, view_col2, view_col3 = st.columns([1, 1, 1])
+                    recent_signals = signal_days.tail(10).copy()
+                    recent_signals.index = recent_signals.index.strftime('%Y-%m-%d')
                     
-                    with view_col1:
-                        # 보기 옵션 선택
-                        view_option = st.selectbox(
-                            "📋 데이터 보기 옵션",
-                            ["최근 10개", "최근 20개", "최근 50개", "전체 데이터"],
-                            help="표시할 데이터의 개수를 선택하세요"
-                        )
+                    # Prepare display data
+                    display_data = recent_signals[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result']].copy()
+                    display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
+                    display_data = display_data.round(2)
                     
-                    with view_col2:
-                        # 정렬 옵션
-                        sort_option = st.selectbox(
-                            "🔄 정렬 기준",
-                            ["날짜순 (최신)", "날짜순 (과거)", "하락률 큰 순", f"{days_after}일 변화율 순"],
-                            help="데이터 정렬 방식을 선택하세요"
-                        )
+                    # Color code the results
+                    def color_result(val):
+                        if val == 'Win':
+                            return 'background-color: #d4edda; color: #155724'
+                        elif val == 'Lose':
+                            return 'background-color: #f8d7da; color: #721c24'
+                        return ''
                     
-                    with view_col3:
-                        # 필터 옵션
-                        filter_option = st.selectbox(
-                            "🎯 결과 필터",
-                            ["전체", "Win만", "Lose만"],
-                            help="특정 결과만 필터링해서 볼 수 있습니다"
-                        )
-                    
-                    # 데이터 준비
-                    display_signals = signal_days.copy()
-                    
-                    # 필터 적용
-                    if filter_option == "Win만":
-                        display_signals = display_signals[display_signals['Result'] == 'Win']
-                    elif filter_option == "Lose만":
-                        display_signals = display_signals[display_signals['Result'] == 'Lose']
-                    
-                    # 정렬 적용
-                    if sort_option == "날짜순 (최신)":
-                        display_signals = display_signals.sort_index(ascending=False)
-                    elif sort_option == "날짜순 (과거)":
-                        display_signals = display_signals.sort_index(ascending=True)
-                    elif sort_option == "하락률 큰 순":
-                        display_signals = display_signals.sort_values('Pct_Change', ascending=True)
-                    elif sort_option == f"{days_after}일 변화율 순":
-                        display_signals = display_signals.sort_values(f'Price_Change_{days_after}D', ascending=False)
-                    
-                    # 개수 제한 적용
-                    if view_option == "최근 10개":
-                        display_signals = display_signals.head(10)
-                    elif view_option == "최근 20개":
-                        display_signals = display_signals.head(20)
-                    elif view_option == "최근 50개":
-                        display_signals = display_signals.head(50)
-                    # "전체 데이터"의 경우 제한 없음
-                    
-                    if len(display_signals) == 0:
-                        st.warning("⚠️ 선택한 필터 조건에 맞는 데이터가 없습니다.")
-                    else:
-                        # 현재 표시되는 데이터 개수 정보
-                        st.info(f"📊 현재 표시 중: **{len(display_signals)}개** (전체 {len(signal_days)}개 중)")
-                        
-                        # 인덱스 포맷팅
-                        display_signals.index = display_signals.index.strftime('%Y-%m-%d')
-                        
-                        # Prepare display data
-                        display_data = display_signals[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result']].copy()
-                        display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
-                        display_data = display_data.round(2)
-                        
-                        # Color code the results
-                        def color_result(val):
-                            if val == 'Win':
-                                return 'background-color: #d4edda; color: #155724'
-                            elif val == 'Lose':
-                                return 'background-color: #f8d7da; color: #721c24'
-                            return ''
-                        
-                        def color_change(val):
-                            if val > 0:
-                                return 'color: #28a745; font-weight: bold'
-                            elif val < 0:
-                                return 'color: #dc3545; font-weight: bold'
-                            return ''
-                        
-                        def color_drop_rate(val):
-                            if val <= -5:
-                                return 'background-color: #721c24; color: white; font-weight: bold'
-                            elif val <= -3:
-                                return 'background-color: #dc3545; color: white; font-weight: bold'
-                            elif val <= -2:
-                                return 'background-color: #f8d7da; color: #721c24; font-weight: bold'
+                    def color_change(val):
+                        if val > 0:
+                            return 'color: #28a745; font-weight: bold'
+                        elif val < 0:
                             return 'color: #dc3545; font-weight: bold'
-                        
-                        styled_df = display_data.style.applymap(color_result, subset=['결과']) \
-                                                      .applymap(color_change, subset=[f'{days_after}일간변화(%)']) \
-                                                      .applymap(color_drop_rate, subset=['하락률(%)'])
-                        
-                        # 데이터프레임 표시 (높이 조정으로 스크롤 가능)
-                        st.dataframe(
-                            styled_df, 
-                            use_container_width=True,
-                            height=min(400, len(display_data) * 35 + 50)  # 최대 400px, 데이터 개수에 따라 조정
-                        )
-                        
-                        # 추가 통계 정보 (현재 표시된 데이터 기준)
-                        if len(display_signals) > 5:  # 충분한 데이터가 있을 때만 표시
-                            st.markdown("---")
-                            st.subheader(f"📈 현재 보기 데이터 통계 ({len(display_signals)}개)")
-                            
-                            current_counts = display_signals['Result'].value_counts()
-                            current_win_count = current_counts.get('Win', 0)
-                            current_lose_count = current_counts.get('Lose', 0)
-                            current_total = len(display_signals)
-                            current_winrate = (current_win_count / current_total) * 100 if current_total > 0 else 0
-                            
-                            stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
-                            
-                            with stat_col1:
-                                st.metric("🎯 Win 비율", f"{current_winrate:.1f}%")
-                            
-                            with stat_col2:
-                                current_avg_drop = display_signals['Pct_Change'].mean()
-                                st.metric("📉 평균 하락률", f"{current_avg_drop:.2f}%")
-                            
-                            with stat_col3:
-                                current_avg_change = display_signals[f'Price_Change_{days_after}D'].mean()
-                                st.metric(f"🔄 평균 {days_after}일 변화", f"{current_avg_change:+.2f}%")
-                            
-                            with stat_col4:
-                                current_max_drop = display_signals['Pct_Change'].min()
-                                st.metric("📉 최대 하락률", f"{current_max_drop:.2f}%")
+                        return ''
+                    
+                    styled_df = display_data.style.applymap(color_result, subset=['결과']) \
+                                                  .applymap(color_change, subset=[f'{days_after}일간변화(%)'])
+                    
+                    st.dataframe(styled_df, use_container_width=True)
                 
-                # Additional statistics (전체 데이터 기준)
+                # Additional statistics
                 st.markdown("---")
-                st.subheader("📈 전체 데이터 상세 통계")
+                st.subheader("📈 상세 통계")
                 
                 col1, col2, col3 = st.columns(3)
                 
