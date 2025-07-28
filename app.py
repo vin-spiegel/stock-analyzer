@@ -534,14 +534,14 @@ def nday_analysis_tab():
                 st.markdown("---")
                 st.subheader("💰 투자 전략 제안")
                 
-                if winrate > 0.56:
+                if winrate > 0.55:
                     strategy_color = "win-box"
                     strategy_text = f"""
                     <h4>📉 즉시 매도 전략 추천</h4>
                     <p><strong>{rate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
                     <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 즉시 손절매를 고려하세요.</p>
                     """
-                elif winrate < 0.44:
+                elif winrate < 0.45:
                     strategy_color = "lose-box"
                     strategy_text = f"""
                     <h4>⏰ 대기 전략 추천</h4>
@@ -570,14 +570,26 @@ def nday_analysis_tab():
                     display_data = recent_signals[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result']].copy()
                     display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
                     display_data = display_data.round(2)
+
+                    display_data['결과'] = display_data['결과'].map({
+                        'Win': f'{days_after}일후 주가 하락',
+                        'Lose': f'{days_after}일후 주가 상승'
+                    })
                     
                     # Color code the results
                     def color_result(val):
-                        if val == 'Win':
+                        if val == f'{days_after}일후 주가 하락':
                             return 'background-color: #f8d7da; color: #721c24'
-                        elif val == 'Lose':
+                        elif val == f'{days_after}일후 주가 상승':
                             return 'background-color: #d4edda; color: #155724'
                         return ''
+                        
+                    # def color_result(val):
+                    #     if val == 'Win':
+                    #         return 'background-color: #f8d7da; color: #721c24'
+                    #     elif val == 'Lose':
+                    #         return 'background-color: #d4edda; color: #155724'
+                    #     return ''
                     
                     def color_change(val):
                         if val > 0:
@@ -585,6 +597,7 @@ def nday_analysis_tab():
                         elif val < 0:
                             return 'color: #dc3545; font-weight: bold'
                         return ''
+
                     
                     styled_df = display_data.style.applymap(color_result, subset=['결과']) \
                                                   .applymap(color_change, subset=[f'{days_after}일간변화(%)'])
