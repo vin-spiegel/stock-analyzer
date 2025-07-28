@@ -402,8 +402,8 @@ def nday_analysis_tab():
         <h4>💡 분석 개요</h4>
         <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가가 더 낮은지</strong> 확인합니다.</p>
         <p><strong>활용법</strong>: 하락 시 즉시 매도할지, 아니면 며칠 기다릴지 통계적으로 판단할 수 있습니다.</p>
-        <p><strong>N일 후 주가 하락</strong>: 하락일 종가 > N일 후 종가 (즉시 매도가 유리했음)</p>
-        <p><strong>N일 후 주가 상승</strong>: 하락일 종가 < N일 후 종가 (기다리는 것이 유리했음)</p>
+        <p><strong>Win</strong>: 하락일 종가 > N일 후 종가 (즉시 매도가 유리했음)</p>
+        <p><strong>Lose</strong>: 하락일 종가 < N일 후 종가 (기다리는 것이 유리했음)</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -465,17 +465,11 @@ def nday_analysis_tab():
                     st.warning(f"⚠️ {days_after}일 후 데이터가 있는 하락일이 없습니다. 기간을 조정해보세요.")
                     return
                 
-                # Win/Lose 판단 (Win = N일 후 주가 하락, Lose = N일 후 주가 상승)
+                # Win/Lose 판단
                 signal_days['Result'] = signal_days.apply(
                     lambda row: 'Win' if row['Price_Today'] > row[f'Price_{days_after}D_Later'] else 'Lose',
                     axis=1
                 )
-                
-                # Result 텍스트 변환
-                signal_days['Result_Text'] = signal_days['Result'].map({
-                    'Win': f'{days_after}일 후 주가 하락',
-                    'Lose': f'{days_after}일 후 주가 상승'
-                })
                 
                 # Calculate price change
                 signal_days[f'Price_Change_{days_after}D'] = (
@@ -520,7 +514,7 @@ def nday_analysis_tab():
                     win_percentage = (win_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box win-box">
-                        <h3>🔴 {days_after}일 후 주가 하락 (즉시 매도가 유리)</h3>
+                        <h3>🔴 (즉시 매도가 유리)</h3>
                         <h1>{win_count}회 ({win_percentage:.1f}%)</h1>
                         <p>하락일에 즉시 매도했다면 {days_after}일 후보다 높은 가격에 판 것</p>
                     </div>
@@ -530,7 +524,7 @@ def nday_analysis_tab():
                     lose_percentage = (lose_count / total_signals) * 100
                     st.markdown(f"""
                     <div class="result-box lose-box">
-                        <h3>🟢 {days_after}일 후 주가 상승 (기다리는 것이 유리)</h3>
+                        <h3>🟢 (기다리는 것이 유리)</h3>
                         <h1>{lose_count}회 ({lose_percentage:.1f}%)</h1>
                         <p>{days_after}일 기다렸다면 하락일보다 높은 가격에 판 것</p>
                     </div>
@@ -564,34 +558,99 @@ def nday_analysis_tab():
                 
                 st.markdown(f'<div class="{strategy_color}">{strategy_text}</div>', unsafe_allow_html=True)
                 
-                # Recent examples and download section
+                # Recent examples
                 if len(signal_days) > 0:
                     st.markdown("---")
+                    st.subheader("📅 최근 하락 신호 사례 (최근 10개)")
                     
-                    # Create download data
-                    download_data = signal_days.copy()
-                    download_data.index = download_data.index.strftime('%Y-%m-%d')
+                    recent_signals = signal_days.tail(10).copy()
+                    recent_signals.index = recent_signals.index.strftime('%Y-%m-%d')
                     
-                    # Prepare display data for download
-                    download_display = download_data[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result_Text']].copy()
-                    download_display.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
-                    download_display = download_display.round(2)
+                    # Prepare display data
+                    display_data = recent_signals[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result']].copy()
+                    display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
+                    display_data = display_data.round(2)
                     
-                    # Download button and recent examples section
-                    col_download, col_recent = st.columns([1, 1])
+                    # Color code the results
+                    def color_result(val):
+                        if val == 'Win':
+                            return 'background-color: #f8d7da; color: #721c24'
+                        elif val == 'Lose':
+                            return 'background-color: #d4edda; color: #155724'
+                        return ''
                     
-                    with col_download:
-                        st.subheader("📥 전체 데이터 다운로드")
-                        
-                        # Convert to CSV
-                        csv_data = download_display.to_csv(encoding='utf-8-sig')
-                        
-                        st.download_button(
-                            label="📊 전체 분석 결과 다운로드 (CSV)",
-                            data=csv_data,
-                            file_name=f"{ticker}_{drop_threshold}%하락_{days_after}일후분석_{datetime.now().strftime('%Y%m%d')}.csv",
-                            mime="text/csv",
-                            use_container_width=True
-                        )
-                        
-                        st.info(f"💾 총 {len(download_display)}개의 하락 신호 데이터를 다운로드할 수 있습니다.")
+                    def color_change(val):
+                        if val > 0:
+                            return 'color: #28a745; font-weight: bold'
+                        elif val < 0:
+                            return 'color: #dc3545; font-weight: bold'
+                        return ''
+                    
+                    styled_df = display_data.style.applymap(color_result, subset=['결과']) \
+                                                  .applymap(color_change, subset=[f'{days_after}일간변화(%)'])
+                    
+                    st.dataframe(styled_df, use_container_width=True)
+                
+                # Additional statistics
+                st.markdown("---")
+                st.subheader("📈 상세 통계")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    avg_win_change = signal_days[signal_days['Result'] == 'Win'][f'Price_Change_{days_after}D'].mean()
+                    st.metric(f"Win 시 평균 {days_after}일 변화", f"{avg_win_change:+.2f}%" if not pd.isna(avg_win_change) else "N/A")
+                
+                with col2:
+                    avg_lose_change = signal_days[signal_days['Result'] == 'Lose'][f'Price_Change_{days_after}D'].mean()
+                    st.metric(f"Lose 시 평균 {days_after}일 변화", f"{avg_lose_change:+.2f}%" if not pd.isna(avg_lose_change) else "N/A")
+                
+                with col3:
+                    median_change = signal_days[f'Price_Change_{days_after}D'].median()
+                    st.metric(f"{days_after}일 변화 중간값", f"{median_change:+.2f}%")
+                
+                # Information box
+                st.markdown("""
+                <div class="info-box">
+                    <h4>⚠️ 주의사항</h4>
+                    <ul>
+                        <li>이 분석은 과거 데이터를 바탕으로 한 통계적 분석입니다.</li>
+                        <li>실제 투자 결정시에는 다른 기술적/기본적 분석과 함께 고려하세요.</li>
+                        <li>선택한 기간은 단기 분석이므로 장기 투자 전략과는 다를 수 있습니다.</li>
+                        <li>시장 상황에 따라 과거 패턴이 반복되지 않을 수 있습니다.</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
+                        💡 <strong>권장</strong>: 이 분석 결과를 다른 투자 지표와 함께 종합적으로 활용하세요.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            except Exception as e:
+                st.error(f"❌ 분석 중 오류가 발생했습니다: {str(e)}")
+                st.info("💡 다른 티커를 시도하거나 날짜 범위를 조정해보세요.")
+
+# Main App
+def main():
+    st.markdown('<h1 class="main-header">📈 주식 시장 분석 대시보드</h1>', unsafe_allow_html=True)
+    
+    # Create tabs
+    tab1, tab2 = st.tabs(["📊 시장 감정", "📉 N일 후 분석"])
+    
+    with tab1:
+        market_sentiment_tab()
+    
+    with tab2:
+        nday_analysis_tab()
+    
+    # Footer
+    st.markdown("---")
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    st.markdown(f"""
+    <div style="text-align: center; color: #666; font-size: 0.9rem;">
+        <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
+        <p>⚠️ <em>이 도구는 교육 목적이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
