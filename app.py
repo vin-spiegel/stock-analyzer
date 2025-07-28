@@ -505,7 +505,7 @@ def nday_analysis_tab():
                     sample_future_date = get_trading_day_after(data.index, sample_signal, days_after)
                     if sample_future_date:
                         actual_calendar_days = (sample_future_date - sample_signal).days
-                        st.info(f"📅 거래일 기준 {days_after}일 = 실제 달력일 약 {actual_calendar_days}일 (주말/공휴일 포함)"
+                        st.info(f"📅 거래일 기준 {days_after}일 = 실제 달력일 약 {actual_calendar_days}일 (주말/공휴일 포함)")
                 
                 if len(signal_days) == 0:
                     st.warning(f"⚠️ {days_after}일 후 데이터가 있는 하락일이 없습니다. 기간을 조정해보세요.")
