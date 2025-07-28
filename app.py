@@ -51,11 +51,11 @@ st.markdown("""
     }
     .win {
         border-left-color: #28a745 !important;
-        background-color: #d4edda;
+        background-color: #f8d7da;
     }
     .lose {
         border-left-color: #dc3545 !important;
-        background-color: #f8d7da;
+        background-color: #d4edda;
     }
     .info-box {
         background-color: #f8f9fa;
