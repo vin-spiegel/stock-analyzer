@@ -402,8 +402,8 @@ def nday_analysis_tab():
         <h4>💡 분석 개요</h4>
         <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가가 더 낮은지</strong> 확인합니다.</p>
         <p><strong>활용법</strong>: 하락 시 즉시 매도할지, 아니면 며칠 기다릴지 통계적으로 판단할 수 있습니다.</p>
-        <p><strong>Win</strong>: 하락일 종가 > N일 후 종가 (즉시 매도가 유리했음)</p>
-        <p><strong>Lose</strong>: 하락일 종가 < N일 후 종가 (기다리는 것이 유리했음)</p>
+        <p><strong>📉</strong>: 하락일 종가 > N일 후 종가 (즉시 매도가 유리했음)</p>
+        <p><strong>📈</strong>: 하락일 종가 < N일 후 종가 (기다리는 것이 유리했음)</p>
     </div>
     """, unsafe_allow_html=True)
     
