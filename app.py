@@ -417,7 +417,7 @@ def nday_analysis_tab():
     
     with col2:
         drop_threshold = st.slider("📉 하락 기준 (%)", 
-                                 min_value=0.5, max_value=15.0, 
+                                 min_value=0.5, max_value=5.0, 
                                  value=1.0, step=0.5,
                                  help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
     
