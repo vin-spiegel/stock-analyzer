@@ -647,9 +647,9 @@ def nday_analysis_tab():
                 # Recent examples
                 if len(signal_days) > 0:
                     st.markdown("---")
-                    st.subheader("📅 최근 하락 신호 사례 (최근 15개)")
+                    st.subheader("📅 최근 하락 신호 사례 (최근 30개)")
                     
-                    recent_signals = signal_days.tail(15).copy()          
+                    recent_signals = signal_days.tail(30).copy()          
                     recent_signals.index = recent_signals.index.strftime('%Y-%m-%d')
                     
                     # Prepare display data
