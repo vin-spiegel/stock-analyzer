@@ -58,27 +58,69 @@ st.markdown("""
         background-color: #f8d7da;
     }
     .info-box {
-        background-color: #e7f3ff;
+        background-color: #f8f9fa;
+        color: #212529;
         padding: 1rem;
         border-radius: 8px;
-        border-left: 4px solid #2196f3;
+        border-left: 4px solid #007bff;
         margin: 1rem 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .info-box h4 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .info-box ul {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    .info-box li {
+        margin-bottom: 0.3rem;
+        color: #495057;
     }
     .result-box {
-        background-color: #f0f8ff;
+        background-color: #ffffff;
+        color: #212529;
         padding: 1.5rem;
         border-radius: 12px;
-        border: 2px solid #1f77b4;
+        border: 2px solid #007bff;
         margin: 1rem 0;
         text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .result-box h3 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .result-box h1 {
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    .result-box p {
+        color: #6c757d;
+        margin-bottom: 0;
     }
     .win-box {
-        background-color: #d4edda;
+        background-color: #f8fff9;
         border-color: #28a745;
+        color: #155724;
+    }
+    .win-box h3, .win-box h1 {
+        color: #155724;
+    }
+    .win-box p {
+        color: #6c7b6f;
     }
     .lose-box {
-        background-color: #f8d7da;
+        background-color: #fff8f8;
         border-color: #dc3545;
+        color: #721c24;
+    }
+    .lose-box h3, .lose-box h1 {
+        color: #721c24;
+    }
+    .lose-box p {
+        color: #856969;
     }
     .stTabs [data-baseweb="tab-list"] {
         gap: 12px;
@@ -98,6 +140,13 @@ st.markdown("""
         }
         .result-box {
             padding: 1rem;
+        }
+        .info-box {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        .info-box h4 {
+            font-size: 1rem;
         }
         .stTabs [data-baseweb="tab"] {
             padding: 0 16px;
@@ -127,11 +176,20 @@ def get_qqq_data():
 @st.cache_data(ttl=60)
 def get_vix_data():
     try:
-        vix = yf.Ticker("^VIX")
-        data = vix.history(period="1d")
-        if data.empty:
-            return None
-        return data['Close'].iloc[-1]
+        # 여러 방법으로 VIX 데이터 시도
+        vix_symbols = ["^VIX", "VIX", "VIXY"]
+        
+        for symbol in vix_symbols:
+            try:
+                vix = yf.Ticker(symbol)
+                data = vix.history(period="5d")  # 더 긴 기간으로 시도
+                if not data.empty and len(data) > 0:
+                    return data['Close'].iloc[-1]
+            except:
+                continue
+        
+        # 모든 방법이 실패하면 None 반환
+        return None
     except Exception:
         return None
 
@@ -282,7 +340,8 @@ def market_sentiment_tab():
             vix_interp, vix_sentiment = interpret_vix(vix)
             display_metric("📈 VIX (변동성 지수)", f"{vix:.2f}", vix_interp, vix_sentiment)
         else:
-            display_metric("📈 VIX (변동성 지수)", "N/A", "데이터 로딩 실패", "neutral")
+            # VIX 로딩 실패시 대체 메시지
+            display_metric("📈 VIX (변동성 지수)", "로딩중...", "데이터 새로고침 중 (잠시 후 다시 시도)", "neutral")
 
     with col2:
         # Put/Call Ratio
@@ -305,7 +364,7 @@ def market_sentiment_tab():
         trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
         percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
         display_metric("🚀 QQQ vs 200일 이동평균", 
-                      f"현재: ${qqq_price:.2f} | 200일 이동평균선: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
+                      f"현재: ${qqq_price:.2f} | 200일MA: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
                       f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
                       price_vs_sma)
     else:
@@ -320,8 +379,11 @@ def market_sentiment_tab():
             <li><strong>VIX</strong>: 시장 변동성 예상 지수 (낮을수록 안정, 높을수록 불안)</li>
             <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 (1.0 이상시 하락 베팅 우세)</li>
             <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
-            <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
+            <li><strong>QQQ vs 200일MA</strong>: 나스닥 ETF의 장기 추세 분석</li>
         </ul>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
+            💡 <strong>팁</strong>: 여러 지표를 종합적으로 해석하여 투자 판단에 활용하세요.
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -355,7 +417,7 @@ def nday_analysis_tab():
     
     with col2:
         drop_threshold = st.slider("📉 하락 기준 (%)", 
-                                 min_value=0.5, max_value=10.0, 
+                                 min_value=0.5, max_value=5.0, 
                                  value=1.0, step=0.5,
                                  help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
     
@@ -556,6 +618,9 @@ def nday_analysis_tab():
                         <li>선택한 기간은 단기 분석이므로 장기 투자 전략과는 다를 수 있습니다.</li>
                         <li>시장 상황에 따라 과거 패턴이 반복되지 않을 수 있습니다.</li>
                     </ul>
+                    <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
+                        💡 <strong>권장</strong>: 이 분석 결과를 다른 투자 지표와 함께 종합적으로 활용하세요.
+                    </p>
                 </div>
                 """, unsafe_allow_html=True)
                 
