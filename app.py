@@ -283,6 +283,43 @@ def interpret_rsi(rsi):
     else:
         return "중립", "neutral"
 
+def get_trading_day_after(data_index, target_date, days_after):
+    """
+    특정 날짜로부터 정확히 N 거래일 후의 날짜를 찾는 함수
+    """
+    try:
+        # target_date의 인덱스 위치 찾기
+        target_idx = data_index.get_loc(target_date)
+        
+        # N 거래일 후의 인덱스 계산
+        future_idx = target_idx + days_after
+        
+        # 인덱스가 범위를 벗어나지 않는지 확인
+        if future_idx < len(data_index):
+            return data_index[future_idx]
+        else:
+            return None
+    except (KeyError, IndexError):
+        return None
+
+def add_nday_later_prices(signal_days, data, days_after):
+    """
+    각 신호일로부터 정확히 N 거래일 후의 가격을 추가하는 함수
+    """
+    nday_later_prices = []
+    
+    for signal_date in signal_days.index:
+        # N 거래일 후의 날짜 찾기
+        future_date = get_trading_day_after(data.index, signal_date, days_after)
+        
+        if future_date is not None and future_date in data.index:
+            nday_later_prices.append(data.loc[future_date, 'Close'])
+        else:
+            nday_later_prices.append(None)
+    
+    signal_days[f'Price_{days_after}D_Later'] = nday_later_prices
+    return signal_days
+
 def display_metric(title, value, interpretation, sentiment):
     css_class = f"metric-container {sentiment}"
     st.markdown(f"""
