@@ -6,6 +6,19 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+
+try:
+    from stock_library import (
+        KOREAN_STOCKS, 
+        get_ticker_from_name, 
+        process_ticker_input,
+        get_stock_count
+    )
+    print(f"✅ 한국 주식 라이브러리 로드 완료! {get_stock_count()}개 종목 지원")
+except ImportError as e:
+    print(f"❌ stock_library.py 파일을 찾을 수 없습니다: {e}")
+    # 기존 KOREAN_STOCKS 딕셔너리는 백업용으로 그대로 둠
+
 # Page configuration
 st.set_page_config(
     page_title="주식 분석 대시보드", 
@@ -13,89 +26,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 한국 주식 라이브러리 (티커: 회사명)
-KOREAN_STOCKS = {
-    "005930": "삼성전자",
-    "000660": "SK하이닉스",
-    "005380": "현대차",
-    "068270": "셀트리온",
-    "035420": "NAVER",
-    "005490": "POSCO홀딩스",
-    "051910": "LG화학",
-    "006400": "삼성SDI",
-    "035720": "카카오",
-    "000270": "기아",
-    "207940": "삼성바이오로직스",
-    "105560": "KB금융",
-    "055550": "신한지주",
-    "003670": "포스코퓨처엠",
-    "096770": "SK이노베이션",
-    "018260": "삼성에스디에스",
-    "028260": "삼성물산",
-    "017670": "SK텔레콤",
-    "009150": "삼성전기",
-    "030200": "KT",
-    "034020": "두산에너빌리티",
-    "003550": "LG",
-    "051900": "LG생활건강",
-    "066570": "LG전자",
-    "128940": "한미약품",
-    "003490": "대한항공",
-    "015760": "한국전력",
-    "086790": "하나금융지주",
-    "010950": "S-Oil",
-    "047050": "포스코인터내셔널",
-    "064350": "현대로템"
-}
-
-# 회사명으로 티커 검색 함수
-def get_ticker_from_name(input_text):
-    """입력된 텍스트가 회사명인 경우 해당 티커를 반환"""
-    input_text = input_text.strip()
-    
-    # 정확한 회사명 매칭
-    for ticker, company_name in KOREAN_STOCKS.items():
-        if input_text == company_name:
-            return ticker + ".KS"
-    
-    # 부분 매칭 (예: "삼성" -> "삼성전자")
-    matches = []
-    for ticker, company_name in KOREAN_STOCKS.items():
-        if input_text in company_name:
-            matches.append((ticker, company_name))
-    
-    if len(matches) == 1:
-        return matches[0][0] + ".KS"
-    elif len(matches) > 1:
-        # 여러 매칭이 있는 경우 None 반환 (사용자가 더 구체적으로 입력해야 함)
-        return None
-    
-    return None
-
-def process_ticker_input(user_input):
-    """사용자 입력을 처리하여 올바른 티커 형태로 변환"""
-    user_input = user_input.strip().upper()
-    
-    # 1. 회사명으로 검색 시도
-    ticker_from_name = get_ticker_from_name(user_input)
-    if ticker_from_name:
-        return ticker_from_name, KOREAN_STOCKS[ticker_from_name.replace(".KS", "")]
-    
-    # 2. 숫자만 입력된 경우 (한국 주식)
-    if user_input.isdigit() and len(user_input) == 6:
-        korean_ticker = user_input + ".KS"
-        company_name = KOREAN_STOCKS.get(user_input, "알 수 없는 회사")
-        return korean_ticker, company_name
-    
-    # 3. 이미 .KS가 붙어있는 경우
-    if user_input.endswith(".KS"):
-        base_code = user_input.replace(".KS", "")
-        if base_code.isdigit() and len(base_code) == 6:
-            company_name = KOREAN_STOCKS.get(base_code, "알 수 없는 회사")
-            return user_input, company_name
-    
-    # 4. 미국 주식이나 기타 (그대로 반환)
-    return user_input, None
 
 # Custom CSS for mobile-friendly design
 st.markdown("""
@@ -544,9 +474,9 @@ def market_sentiment_tab():
         # USD/KRW 환율
         if usd_krw_rate is not None:
             usd_krw_interp, usd_krw_sentiment = interpret_usd_krw(usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct)
-            display_metric(" 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
+            display_metric("💱 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
         else:
-            display_metric(" 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
+            display_metric("💱 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
 
     # Information box
     st.markdown("""
@@ -903,7 +833,7 @@ def main():
     st.markdown(f"""
     <div style="text-align: center; color: #666; font-size: 0.9rem;">
         <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
-        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등) + 한국 주식(종목코드)(</p>
+        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등) + 한국 주요 종목 30개</p>
         <p>⚠️ <em>이 도구는 교육 목적이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
     </div>
     """, unsafe_allow_html=True)
