@@ -509,7 +509,7 @@ def nday_analysis_tab():
         <h4>💡 분석 개요</h4>
         <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가의 방향(상승/하락)</strong>을 확인합니다.</p>
         <p><strong>활용법</strong>: 주가 하락 시 즉시 매도할지, 며칠 기다릴지, 오히려 매수할지 통계적으로 판단할 수 있습니다.</p>
-        <p><strong>해외 주식</strong>: 티커 검색 /t <strong>국내 주식</strong>: 검색이 안될시 종목 코드 입력</p>
+        <p><strong>해외 주식</strong>: 티커 검색 &nbsp;&nbsp;&nbsp; <strong>국내 주식</strong>: 검색이 안될시 종목 코드 입력</p>
         
     </div>
     """, unsafe_allow_html=True)
