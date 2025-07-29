@@ -13,6 +13,89 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# 한국 주식 라이브러리 (티커: 회사명)
+KOREAN_STOCKS = {
+    "005930": "삼성전자",
+    "000660": "SK하이닉스",
+    "005380": "현대차",
+    "068270": "셀트리온",
+    "035420": "NAVER",
+    "005490": "POSCO홀딩스",
+    "051910": "LG화학",
+    "006400": "삼성SDI",
+    "035720": "카카오",
+    "000270": "기아",
+    "207940": "삼성바이오로직스",
+    "105560": "KB금융",
+    "055550": "신한지주",
+    "003670": "포스코퓨처엠",
+    "096770": "SK이노베이션",
+    "018260": "삼성에스디에스",
+    "028260": "삼성물산",
+    "017670": "SK텔레콤",
+    "009150": "삼성전기",
+    "030200": "KT",
+    "034020": "두산에너빌리티",
+    "003550": "LG",
+    "051900": "LG생활건강",
+    "066570": "LG전자",
+    "128940": "한미약품",
+    "003490": "대한항공",
+    "015760": "한국전력",
+    "086790": "하나금융지주",
+    "010950": "S-Oil",
+    "047050": "포스코인터내셔널"
+}
+
+# 회사명으로 티커 검색 함수
+def get_ticker_from_name(input_text):
+    """입력된 텍스트가 회사명인 경우 해당 티커를 반환"""
+    input_text = input_text.strip()
+    
+    # 정확한 회사명 매칭
+    for ticker, company_name in KOREAN_STOCKS.items():
+        if input_text == company_name:
+            return ticker + ".KS"
+    
+    # 부분 매칭 (예: "삼성" -> "삼성전자")
+    matches = []
+    for ticker, company_name in KOREAN_STOCKS.items():
+        if input_text in company_name:
+            matches.append((ticker, company_name))
+    
+    if len(matches) == 1:
+        return matches[0][0] + ".KS"
+    elif len(matches) > 1:
+        # 여러 매칭이 있는 경우 None 반환 (사용자가 더 구체적으로 입력해야 함)
+        return None
+    
+    return None
+
+def process_ticker_input(user_input):
+    """사용자 입력을 처리하여 올바른 티커 형태로 변환"""
+    user_input = user_input.strip().upper()
+    
+    # 1. 회사명으로 검색 시도
+    ticker_from_name = get_ticker_from_name(user_input)
+    if ticker_from_name:
+        return ticker_from_name, KOREAN_STOCKS[ticker_from_name.replace(".KS", "")]
+    
+    # 2. 숫자만 입력된 경우 (한국 주식)
+    if user_input.isdigit() and len(user_input) == 6:
+        korean_ticker = user_input + ".KS"
+        company_name = KOREAN_STOCKS.get(user_input, "알 수 없는 회사")
+        return korean_ticker, company_name
+    
+    # 3. 이미 .KS가 붙어있는 경우
+    if user_input.endswith(".KS"):
+        base_code = user_input.replace(".KS", "")
+        if base_code.isdigit() and len(base_code) == 6:
+            company_name = KOREAN_STOCKS.get(base_code, "알 수 없는 회사")
+            return user_input, company_name
+    
+    # 4. 미국 주식이나 기타 (그대로 반환)
+    return user_input, None
+
 # Custom CSS for mobile-friendly design
 st.markdown("""
 <style>
@@ -26,7 +109,7 @@ st.markdown("""
     .sub-header {
         font-size: 1.5rem;
         font-weight: bold;
-        rgin-bottom: 1rem;
+        margin-bottom: 1rem;
         color: #333;
     }
     .metric-container {
@@ -122,6 +205,7 @@ st.markdown("""
     .lose-box p {
         color: #856969;
     }
+
     .stTabs [data-baseweb="tab-list"] {
         gap: 12px;
     }
@@ -152,6 +236,7 @@ st.markdown("""
             padding: 0 16px;
             font-size: 0.9rem;
         }
+
     }
 </style>
 """, unsafe_allow_html=True)
@@ -192,6 +277,26 @@ def get_vix_data():
         return None
     except Exception:
         return None
+
+@st.cache_data(ttl=60)
+def get_usd_krw_rate():
+    """원달러 환율 정보 가져오기"""
+    try:
+        # yfinance로 USD/KRW 환율 가져오기
+        usd_krw = yf.Ticker("USDKRW=X")
+        data = usd_krw.history(period="5d")  # 더 많은 데이터로 확실한 전날 비교
+        if not data.empty and len(data) >= 2:
+            current_rate = data['Close'].iloc[-1]
+            prev_rate = data['Close'].iloc[-2]
+            
+            # 변화량과 변화율 계산
+            change_amount = current_rate - prev_rate
+            change_pct = (change_amount / prev_rate) * 100
+            
+            return current_rate, change_amount, change_pct
+        return None, None, None
+    except Exception:
+        return None, None, None
 
 @st.cache_data(ttl=300)  # Cache for 5 minutes due to web scraping
 def fetch_fgi():
@@ -283,6 +388,29 @@ def interpret_rsi(rsi):
     else:
         return "중립", "neutral"
 
+def interpret_usd_krw(rate, change_amount, change_pct):
+    if rate is None:
+        return "데이터 없음", "neutral"
+    
+    # 화살표와 변화량 표시
+    if change_amount > 0:
+        arrow = "↗️"
+        amount_text = f"(↗️ {change_amount:.1f}원, +{change_pct:.2f}%)"
+        sentiment = "bearish"  # 원화 약세
+        trend_text = "전일 대비"
+    elif change_amount < 0:
+        arrow = "↘️"
+        amount_text = f"(↘️ {abs(change_amount):.1f}원, {change_pct:.2f}%)"
+        sentiment = "bullish"  # 원화 강세
+        trend_text = "전일 대비"
+    else:
+        arrow = "➡️"
+        amount_text = "(➡️ 보합)"
+        sentiment = "neutral"
+        trend_text = "보합"
+    
+    return f"{trend_text} {amount_text}", sentiment
+
 def get_trading_day_after(data_index, target_date, days_after):
     """
     특정 날짜로부터 정확히 N 달력일 후의 가장 가까운 거래일을 찾는 함수
@@ -300,7 +428,6 @@ def get_trading_day_after(data_index, target_date, days_after):
             return None
     except (KeyError, IndexError):
         return None
-
 
 def add_nday_later_prices(signal_days, data, days_after):
     """
@@ -359,6 +486,7 @@ def market_sentiment_tab():
         vix = get_vix_data()
         fgi = fetch_fgi()
         pci = fetch_pci()
+        usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct = get_usd_krw_rate()
         
         # Get RSI data
         try:
@@ -367,7 +495,7 @@ def market_sentiment_tab():
         except:
             rsi = None
 
-    # Display metrics in responsive columns
+    # Display metrics in responsive columns (2x3 grid)
     col1, col2 = st.columns([1, 1])
     
     with col1:
@@ -383,8 +511,19 @@ def market_sentiment_tab():
             vix_interp, vix_sentiment = interpret_vix(vix)
             display_metric("📈 VIX (변동성 지수)", f"{vix:.2f}", vix_interp, vix_sentiment)
         else:
-            # VIX 로딩 실패시 대체 메시지
             display_metric("📈 VIX (변동성 지수)", "로딩중...", "데이터 새로고침 중 (잠시 후 다시 시도)", "neutral")
+        
+        # QQQ vs 200-day SMA
+        if qqq_price is not None and qqq_sma is not None:
+            price_vs_sma = "bullish" if qqq_price > qqq_sma else "bearish"
+            trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
+            percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
+            display_metric("🚀 QQQ vs 200일 이동평균", 
+                          f"현재: ${qqq_price:.2f} | 200일 평균: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
+                          f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
+                          price_vs_sma)
+        else:
+            display_metric("🚀 QQQ vs 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
 
     with col2:
         # Put/Call Ratio
@@ -400,18 +539,13 @@ def market_sentiment_tab():
             display_metric("📊 RSI (S&P500)", f"{rsi:.1f}", rsi_interp, rsi_sentiment)
         else:
             display_metric("📊 RSI (S&P500)", "N/A", "데이터 로딩 실패", "neutral")
-    
-    # QQQ vs 200-day SMA (full width)
-    if qqq_price is not None and qqq_sma is not None:
-        price_vs_sma = "bullish" if qqq_price > qqq_sma else "bearish"
-        trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
-        percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
-        display_metric("🚀 QQQ vs 200일 이동평균", 
-                      f"현재: ${qqq_price:.2f} | 200일 평균: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
-                      f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
-                      price_vs_sma)
-    else:
-        display_metric("🚀 QQQ vs 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
+        
+        # USD/KRW 환율
+        if usd_krw_rate is not None:
+            usd_krw_interp, usd_krw_sentiment = interpret_usd_krw(usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct)
+            display_metric("💱 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
+        else:
+            display_metric("💱 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
 
     # Information box
     st.markdown("""
@@ -423,6 +557,7 @@ def market_sentiment_tab():
             <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 (1.0 이상시 하락 베팅 우세)</li>
             <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
             <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
+            <li><strong>원달러 환율</strong>: USD/KRW 환율 (상승시 원화약세, 하락시 원화강세)</li>
         </ul>
         <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
             💡 <strong>팁</strong>: 여러 지표를 종합적으로 해석하여 투자 판단에 활용하세요.
@@ -450,13 +585,15 @@ def nday_analysis_tab():
     </div>
     """, unsafe_allow_html=True)
     
+
+    
     # Input controls
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     
     with col1:
-        ticker = st.text_input("📊 종목 티커", 
-                              value="QQQ", 
-                              help="예: QQQ, SPY, AAPL 등")
+        ticker_input = st.text_input("📊 종목 입력", 
+                                   value="QQQ", 
+                                   help="예: QQQ, SPY, AAPL, 삼성전자, 005930 등")
     
     with col2:
         drop_threshold = st.slider("📉 하락 기준 (%)", 
@@ -464,14 +601,8 @@ def nday_analysis_tab():
                                  value=1.0, step=0.5,
                                  help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
     
-    # with col3:
-    #      days_after = st.selectbox("📆 분석 기간 (일)", 
-    #                             options=[1, 3, 5, 7, 14, 30, 90, 180, 365],
-    #                             index=2,  # 기본값: 3일
-    #                             help="하락일로부터 며칠 후를 분석할지 선택")
-    
     with col3:
-    # 옵션을 딕셔너리로 정의
+        # 옵션을 딕셔너리로 정의
         day_options = {
             "1일": 1,
             "3일": 3,
@@ -491,11 +622,8 @@ def nday_analysis_tab():
             help="하락일로부터 며칠 후를 분석할지 선택"
         )
     
-            # 실제 값 가져오기
+        # 실제 값 가져오기
         days_after = day_options[selected_label]
-    
-
-
     
     with col4:
         start_date = st.date_input("📅 분석 시작일", 
@@ -504,14 +632,31 @@ def nday_analysis_tab():
                                  max_value=pd.to_datetime("today"),       # 최대 날짜는 오늘로 제한
                                  help="이 날짜부터 현재까지 분석")
     
+    # 티커 처리 및 표시
+    processed_ticker, company_name = process_ticker_input(ticker_input)
+    
+    if company_name:
+        st.info(f"🇰🇷 한국 주식: **{company_name}** ({processed_ticker}) 분석 준비")
+    elif processed_ticker != ticker_input.upper():
+        st.info(f"🌏 해외 주식: **{processed_ticker}** 분석 준비")
+    
     if st.button("🔍 분석 실행", type="primary", use_container_width=True):
         with st.spinner("데이터를 불러오고 분석 중... 잠시만 기다려주세요."):
             try:
                 # Download data
-                data = yf.download(ticker.upper(), start=start_date)
+                data = yf.download(processed_ticker, start=start_date)
                 
                 if data.empty:
-                    st.error(f"❌ {ticker} 데이터를 찾을 수 없습니다. 티커를 확인해주세요.")
+                    st.error(f"❌ {processed_ticker} 데이터를 찾을 수 없습니다. 티커를 확인해주세요.")
+                    
+                    # 한국 주식의 경우 추가 도움말 제공
+                    if processed_ticker.endswith(".KS"):
+                        st.info("""
+                        💡 **한국 주식 입력 방법**:
+                        - 회사명 입력: "삼성전자", "SK하이닉스" 등
+                        - 6자리 숫자 코드: "005930", "000660" 등
+                        - 전체 티커: "005930.KS", "000660.KS" 등
+                        """)
                     return
                 
                 # Process data
@@ -528,11 +673,6 @@ def nday_analysis_tab():
                     st.warning(f"⚠️ {drop_threshold}% 이상 하락한 날이 없습니다. 기준을 낮춰보세요.")
                     return
                 
-                # # Add N-day later data
-                # signal_days['Price_Today'] = signal_days['Close']
-                # signal_days[f'Price_{days_after}D_Later'] = data['Close'].shift(-days_after).loc[signal_days.index]
-                # signal_days = signal_days.dropna(subset=[f'Price_{days_after}D_Later'])
-
                 # Add N-day later data
                 signal_days['Price_Today'] = signal_days['Close']
                 
@@ -571,7 +711,8 @@ def nday_analysis_tab():
                 rate = winrate*100
                 
                 # Display main results
-                st.success(f"✅ 분석 완료! {total_signals}개의 하락 신호를 분석했습니다.")
+                display_ticker = f"{company_name} ({processed_ticker})" if company_name else processed_ticker
+                st.success(f"✅ **{display_ticker}** 분석 완료! {total_signals}개의 하락 신호를 분석했습니다.")
                 
                 # Main metrics
                 col1, col2, col3, col4 = st.columns(4)
@@ -620,19 +761,21 @@ def nday_analysis_tab():
                 st.markdown("---")
                 st.subheader("💰 투자 전략 제안")
                 
+                ticker_display = company_name if company_name else processed_ticker
+                
                 if winrate > 0.55:
                     strategy_color = "win-box"
                     strategy_text = f"""
                     <h4>📉 즉시 매도 전략 추천</h4>
                     <p><strong>{rate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
-                    <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락하면 매도를 고려하세요.</p>
+                    <p>💡 <strong>추천</strong>: {ticker_display} 종목이 {drop_threshold}% 이상 하락하면 매도를 고려하세요.</p>
                     """
                 elif winrate < 0.45:
                     strategy_color = "lose-box"
                     strategy_text = f"""
                     <h4>⏰ 대기 전략 추천</h4>
                     <p><strong>{(100-rate):.1f}%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
-                    <p>💡 <strong>추천</strong>: {ticker} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일 정도는 기다려보세요.</p>
+                    <p>💡 <strong>추천</strong>: {ticker_display} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일 정도는 기다려보세요.</p>
                     """
                 else:
                     strategy_color = "result-box"
@@ -654,8 +797,18 @@ def nday_analysis_tab():
                     
                     # Prepare display data
                     display_data = recent_signals[['Pct_Change', 'Price_Today', f'Price_{days_after}D_Later', f'Price_Change_{days_after}D', 'Result']].copy()
-                    display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
-                    display_data = display_data.round(2)
+                    
+                    # 가격 단위 조정 (한국 주식의 경우)
+                    if company_name:
+                        display_data.columns = ['하락률(%)', '당일종가(₩)', f'{days_after}일후종가(₩)', f'{days_after}일간변화(%)', '결과']
+                        # 한국 주식은 원 단위로 표시 (소수점 제거)
+                        display_data['당일종가(₩)'] = display_data['당일종가(₩)'].round(0).astype(int)
+                        display_data[f'{days_after}일후종가(₩)'] = display_data[f'{days_after}일후종가(₩)'].round(0).astype(int)
+                        display_data['하락률(%)'] = display_data['하락률(%)'].round(2)
+                        display_data[f'{days_after}일간변화(%)'] = display_data[f'{days_after}일간변화(%)'].round(2)
+                    else:
+                        display_data.columns = ['하락률(%)', '당일종가($)', f'{days_after}일후종가($)', f'{days_after}일간변화(%)', '결과']
+                        display_data = display_data.round(2)
 
                     display_data['결과'] = display_data['결과'].map({
                         'Win': f'{days_after}일 후 📉',
@@ -669,13 +822,6 @@ def nday_analysis_tab():
                         elif val == f'{days_after}일 후 📈':
                             return 'background-color: #d4edda; color: #155724'
                         return ''
-                        
-                    # def color_result(val):
-                    #     if val == 'Win':
-                    #         return 'background-color: #f8d7da; color: #721c24'
-                    #     elif val == 'Lose':
-                    #         return 'background-color: #d4edda; color: #155724'
-                    #     return ''
                     
                     def color_change(val):
                         if val > 0:
@@ -684,15 +830,11 @@ def nday_analysis_tab():
                             return 'color: #dc3545; font-weight: bold'
                         return ''
 
-                    
                     styled_df = display_data.style.applymap(color_result, subset=['결과']) \
                                                   .applymap(color_change, subset=[f'{days_after}일간변화(%)'])
                     
                     st.dataframe(styled_df, use_container_width=True)
-                    # 표시할 데이터가 많을 때 스크롤 가능한 높이 설정
-                   
                         
-                    
                 # Additional statistics
                 st.markdown("---")
                 st.subheader("📈 상세 통계")
@@ -720,6 +862,7 @@ def nday_analysis_tab():
                         <li>실제 투자 결정시에는 다른 기술적/기본적 분석과 함께 고려하세요.</li>
                         <li>선택한 기간은 단기 분석이므로 장기 투자 전략과는 다를 수 있습니다.</li>
                         <li>시장 상황에 따라 과거 패턴이 반복되지 않을 수 있습니다.</li>
+                        <li>한국 주식의 경우 환율 변동 등 추가 요인을 고려해야 합니다.</li>
                     </ul>
                     <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
                         💡 <strong>권장</strong>: 이 분석 결과를 다른 투자 지표와 함께 종합적으로 활용하세요.
@@ -730,6 +873,15 @@ def nday_analysis_tab():
             except Exception as e:
                 st.error(f"❌ 분석 중 오류가 발생했습니다: {str(e)}")
                 st.info("💡 다른 티커를 시도하거나 날짜 범위를 조정해보세요.")
+                
+                # 한국 주식 관련 오류인 경우 추가 도움말
+                if processed_ticker.endswith(".KS"):
+                    st.warning("""
+                    🇰🇷 **한국 주식 관련 팁**:
+                    - 일부 한국 주식은 yfinance에서 데이터가 제한적일 수 있습니다.
+                    - 상장 폐지되었거나 최근 상장한 종목은 데이터가 없을 수 있습니다.
+                    - 분석 시작일을 더 최근으로 설정해보세요.
+                    """)
 
 # Main App
 def main():
@@ -750,6 +902,7 @@ def main():
     st.markdown(f"""
     <div style="text-align: center; color: #666; font-size: 0.9rem;">
         <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
+        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등) + 한국 주요 종목 30개</p>
         <p>⚠️ <em>이 도구는 교육 목적이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
     </div>
     """, unsafe_allow_html=True)
