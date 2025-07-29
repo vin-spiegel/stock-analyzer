@@ -14,10 +14,10 @@ try:
         process_ticker_input,
         get_stock_count
     )
-    print(f"✅ 한국 주식 라이브러리 로드 완료! {get_stock_count()}개 종목 지원")
+    print(f"주식 라이브러리 로드 완료! {get_stock_count()}개 종목 지원")
 except ImportError as e:
-    print(f"❌ stock_library.py 파일을 찾을 수 없습니다: {e}")
-    # 기존 KOREAN_STOCKS 딕셔너리는 백업용으로 그대로 둠
+    print(f" stock_library.py 파일을 찾을 수 없습니다: {e}")
+    
 
 # Page configuration
 st.set_page_config(
@@ -192,7 +192,6 @@ def get_qqq_data():
 @st.cache_data(ttl=60)
 def get_vix_data():
     try:
-        # 여러 방법으로 VIX 데이터 시도
         vix_symbols = ["^VIX", "VIX", "VIXY"]
         
         for symbol in vix_symbols:
@@ -204,7 +203,7 @@ def get_vix_data():
             except:
                 continue
         
-        # 모든 방법이 실패하면 None 반환
+        
         return None
     except Exception:
         return None
@@ -323,7 +322,6 @@ def interpret_usd_krw(rate, change_amount, change_pct):
     if rate is None:
         return "데이터 없음", "neutral"
     
-    # 화살표와 변화량 표시
     if change_amount > 0:
         arrow = "↗️"
         amount_text = f"(↗️ {change_amount:.1f}원, +{change_pct:.2f}%)"
@@ -509,10 +507,10 @@ def nday_analysis_tab():
     st.markdown("""
     <div class="info-box">
         <h4>💡 분석 개요</h4>
-        <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가가 더 낮은지</strong> 확인합니다.</p>
-        <p><strong>활용법</strong>: 하락 시 즉시 매도할지, 아니면 며칠 기다릴지 통계적으로 판단할 수 있습니다.</p>
-        <p><strong>📉</strong>: 하락일 종가 > N일 후 종가 (즉시 매도가 유리했음)</p>
-        <p><strong>📈</strong>: 하락일 종가 < N일 후 종가 (기다리는 것이 유리했음)</p>
+        <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가의 방향(상승/하락)</strong>을 확인합니다.</p>
+        <p><strong>활용법</strong>: 주가 하락 시 즉시 매도할지, 며칠 기다릴지, 오히려 매수할지 통계적으로 판단할 수 있습니다.</p>
+        <p><strong>해외 주식</strong>: 티커 검색</p>
+        <p><strong>국내 주식</strong>: 검색이 안될시 종목 코드 입력</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -533,7 +531,6 @@ def nday_analysis_tab():
                                  help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
     
     with col3:
-        # 옵션을 딕셔너리로 정의
         day_options = {
             "1일": 1,
             "3일": 3,
@@ -791,9 +788,8 @@ def nday_analysis_tab():
                     <ul>
                         <li>이 분석은 과거 데이터를 바탕으로 한 통계적 분석입니다.</li>
                         <li>실제 투자 결정시에는 다른 기술적/기본적 분석과 함께 고려하세요.</li>
-                        <li>선택한 기간은 단기 분석이므로 장기 투자 전략과는 다를 수 있습니다.</li>
                         <li>시장 상황에 따라 과거 패턴이 반복되지 않을 수 있습니다.</li>
-                        <li>한국 주식의 경우 환율 변동 등 추가 요인을 고려해야 합니다.</li>
+                        <li>미국 주식의 경우 환율 변동 등 추가 요인을 고려해야 합니다.</li>
                     </ul>
                     <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
                         💡 <strong>권장</strong>: 이 분석 결과를 다른 투자 지표와 함께 종합적으로 활용하세요.
@@ -833,7 +829,7 @@ def main():
     st.markdown(f"""
     <div style="text-align: center; color: #666; font-size: 0.9rem;">
         <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
-        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등) + 한국 주요 종목 30개</p>
+        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등 티커검색) + 한국 주식</p>
         <p>⚠️ <em>이 도구는 교육 목적이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
     </div>
     """, unsafe_allow_html=True)
