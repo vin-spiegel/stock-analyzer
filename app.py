@@ -830,7 +830,7 @@ def main():
     <div style="text-align: center; color: #666; font-size: 0.9rem;">
         <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
         <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등 티커검색) + 한국 주식</p>
-        <p>⚠️ <em>이 도구는 교육 목적이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
+        <p>⚠️ <em>이 도구는 참고 용도이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
     </div>
     """, unsafe_allow_html=True)
 
