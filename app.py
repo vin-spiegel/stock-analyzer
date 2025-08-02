@@ -681,7 +681,7 @@ def nday_analysis_tab():
                     <div class="result-box lose-box">
                         <h3>🟢 (기다리는 것이 유리)</h3>
                         <h1>{lose_count}회 ({lose_percentage:.1f}%)</h1>
-                        <p>{days_after}일 기다렸다면 하락일보다 높은 가격에 판 것</p>
+                        <p>{days_after}일 후 가격은 하락일 보다 높음</p>
                     </div>
                     """, unsafe_allow_html=True)
                 
@@ -836,3 +836,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
