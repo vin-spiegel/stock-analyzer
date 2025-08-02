@@ -1,7 +1,7 @@
 # korean_stocks.py
 
 
-# 기존 주식 데이터 + 추가 종목들
+
 KOREAN_STOCKS = {
     "000020": "동화약품",
     "000040": "KR모터스",
@@ -2650,18 +2650,15 @@ SECTORS = {
 }
 
 def get_company_name(ticker):
-    """티커로 회사명 조회"""
     return KOREAN_STOCKS.get(ticker, "Unknown")
 
 def get_ticker_by_name(company_name):
-    """회사명으로 티커 조회 (정확한 매칭)"""
     for ticker, name in KOREAN_STOCKS.items():
         if name == company_name:
             return ticker
     return None
 
 def search_company_by_partial_name(partial_name):
-    """부분 회사명으로 검색"""
     matches = []
     for ticker, name in KOREAN_STOCKS.items():
         if partial_name in name:
@@ -2669,11 +2666,9 @@ def search_company_by_partial_name(partial_name):
     return matches
 
 def get_sector_stocks(sector):
-    """섹터별 주식 리스트 조회"""
     return SECTORS.get(sector, [])
 
 def search_stocks(keyword):
-    """키워드로 주식 검색"""
     results = []
     for ticker, name in KOREAN_STOCKS.items():
         if keyword in name:
@@ -2681,66 +2676,48 @@ def search_stocks(keyword):
     return results
 
 def get_ticker_from_name(input_text):
-    """
-    기존 app.py의 함수와 동일한 기능
-    입력된 텍스트가 회사명인 경우 해당 티커를 반환
-    """
     input_text = input_text.strip()
     
-    # 정확한 회사명 매칭
     exact_ticker = get_ticker_by_name(input_text)
     if exact_ticker:
         return exact_ticker + ".KS"
     
-    # 부분 매칭 (예: "삼성" -> "삼성전자")
     matches = search_company_by_partial_name(input_text)
     
     if len(matches) == 1:
         return matches[0][0] + ".KS"
     elif len(matches) > 1:
-        # 여러 매칭이 있는 경우 None 반환 (사용자가 더 구체적으로 입력해야 함)
         return None
     
     return None
 
 def process_ticker_input(user_input):
-    """
-    기존 app.py의 함수와 동일한 기능
-    사용자 입력을 처리하여 올바른 티커 형태로 변환
-    """
     user_input = user_input.strip().upper()
     
-    # 1. 회사명으로 검색 시도
     ticker_from_name = get_ticker_from_name(user_input)
     if ticker_from_name:
         return ticker_from_name, KOREAN_STOCKS[ticker_from_name.replace(".KS", "")]
     
-    # 2. 숫자만 입력된 경우 (한국 주식)
     if user_input.isdigit() and len(user_input) == 6:
         korean_ticker = user_input + ".KS"
         company_name = KOREAN_STOCKS.get(user_input, "알 수 없는 회사")
         return korean_ticker, company_name
     
-    # 3. 이미 .KS가 붙어있는 경우
     if user_input.endswith(".KS"):
         base_code = user_input.replace(".KS", "")
         if base_code.isdigit() and len(base_code) == 6:
             company_name = KOREAN_STOCKS.get(base_code, "알 수 없는 회사")
             return user_input, company_name
     
-    # 4. 미국 주식이나 기타 (그대로 반환)
     return user_input, None
 
 def get_all_stocks():
-    """모든 주식 리스트 반환"""
     return KOREAN_STOCKS
 
 def get_stock_count():
-    """총 주식 수 반환"""
     return len(KOREAN_STOCKS)
 
 def get_all_sectors():
-    """모든 섹터 리스트 반환"""
     return list(SECTORS.keys())
 
 # 버전 정보
@@ -2760,4 +2737,5 @@ if __name__ == "__main__":
         results = search_stocks(keyword)
         print(f"\n'{keyword}' 검색 결과: {len(results)}개")
         for ticker, name in results[:3]:  # 상위 3개만 표시
+
             print(f"  - {ticker}: {name}")
