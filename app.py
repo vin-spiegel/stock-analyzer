@@ -292,11 +292,11 @@ def interpret_vix(vix):
     if vix is None:
         return "데이터 없음", "neutral"
     if vix < 15:
-        return "변동성 낮음 (상승장)", "bullish"
+        return "변동성 낮음 (상승장) 매도 신호", "bullish"
     elif vix < 25:
         return "변동성 중간 (중립)", "neutral"
     else:
-        return "변동성 높음 (하락장)", "bearish"
+        return "변동성 높음 (하락장) 매수 신호", "bearish"
 
 def interpret_pci(pci):
     if pci is None:
@@ -836,6 +836,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
