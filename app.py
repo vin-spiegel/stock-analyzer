@@ -483,7 +483,7 @@ def market_sentiment_tab():
         <ul>
             <li><strong>공포 & 탐욕 지수</strong>: 0-100 범위의 시장 심리 지표 (0=극도공포, 100=극도탐욕)</li>
             <li><strong>VIX</strong>: 시장 변동성 예상 지수 (낮을수록 안정, 높을수록 불안)</li>
-            <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 (1.0 이상시 하락 베팅 우세)</li>
+            <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 </li>
             <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
             <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
             <li><strong>원달러 환율</strong>: USD/KRW 환율 (상승시 원화약세, 하락시 원화강세)</li>
@@ -836,5 +836,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
