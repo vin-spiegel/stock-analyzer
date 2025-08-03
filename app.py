@@ -771,11 +771,11 @@ def nday_analysis_tab():
                 
                 with col1:
                     avg_win_change = signal_days[signal_days['Result'] == 'Win'][f'Price_Change_{days_after}D'].mean()
-                    st.metric(f"Win 시 평균 {days_after}일 변화", f"{avg_win_change:+.2f}%" if not pd.isna(avg_win_change) else "N/A")
+                    st.metric(f"하락 시 평균 {days_after}일 변화", f"{avg_win_change:+.2f}%" if not pd.isna(avg_win_change) else "N/A")
                 
                 with col2:
                     avg_lose_change = signal_days[signal_days['Result'] == 'Lose'][f'Price_Change_{days_after}D'].mean()
-                    st.metric(f"Lose 시 평균 {days_after}일 변화", f"{avg_lose_change:+.2f}%" if not pd.isna(avg_lose_change) else "N/A")
+                    st.metric(f"상승 시 평균 {days_after}일 변화", f"{avg_lose_change:+.2f}%" if not pd.isna(avg_lose_change) else "N/A")
                 
                 with col3:
                     median_change = signal_days[f'Price_Change_{days_after}D'].median()
@@ -836,6 +836,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
