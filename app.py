@@ -472,9 +472,9 @@ def market_sentiment_tab():
         # USD/KRW 환율
         if usd_krw_rate is not None:
             usd_krw_interp, usd_krw_sentiment = interpret_usd_krw(usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct)
-            display_metric("💱 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
+            display_metric("🔁 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
         else:
-            display_metric("💱 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
+            display_metric("🔁 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
 
     # Information box
     st.markdown("""
@@ -836,6 +836,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
