@@ -6,7 +6,6 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-pd.set_option('display.float_format', '{:.2f}'.format)
 
 try:
     from stock_library import (
@@ -837,6 +836,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
