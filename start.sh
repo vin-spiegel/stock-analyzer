@@ -4,7 +4,7 @@
 # Streamlit 애플리케이션을 헤드리스 모드로 실행
 
 export STREAMLIT_SERVER_HEADLESS=true
-export STREAMLIT_SERVER_PORT=${PORT:-8501}
+export STREAMLIT_SERVER_PORT=${PORT:-8080}
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Streamlit 실행
