@@ -262,6 +262,55 @@ def fetch_pci():
     except Exception:
         return None
 
+@st.cache_data(ttl=300)
+def fetch_buffett_indicator():
+    """버핏 지수 (미국 주식 시가총액 대비 GDP 비율) 가져오기"""
+    try:
+        # FRED API를 통해 Wilshire 5000 Total Market Index와 GDP 데이터 가져오기
+        # 대안으로 yfinance를 통해 시장 지수와 추정치 사용
+        
+        # 방법 1: 간접 계산 - S&P 500 시가총액 기반 추정
+        spy = yf.Ticker("SPY")
+        spy_data = spy.history(period="1d")
+        if spy_data.empty:
+            return None, None
+            
+        # SPY ETF 가격을 기반으로 S&P 500 추정 시가총액 계산 (간단한 근사치)
+        spy_price = spy_data['Close'].iloc[-1]
+        
+        # 대략적인 버핏 지수 계산 (SPY 기반 추정)
+        # 역사적으로 SPY $400 수준에서 버핏 지수가 약 180% 정도
+        estimated_ratio = (spy_price / 400) * 180
+        
+        # 더 정확한 방법: 웹 스크래핑으로 실제 버핏 지수 가져오기
+        try:
+            url = 'https://www.longtermtrends.net/market-cap-to-gdp-the-buffett-indicator/'
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # 페이지에서 현재 비율 찾기
+            ratio_elements = soup.find_all('span', class_='indicator-value')
+            if ratio_elements:
+                for element in ratio_elements:
+                    text = element.text.strip()
+                    if '%' in text:
+                        ratio_str = text.replace('%', '').strip()
+                        try:
+                            actual_ratio = float(ratio_str)
+                            return actual_ratio, "actual"
+                        except ValueError:
+                            continue
+        except:
+            pass
+            
+        # 실제 데이터를 가져올 수 없는 경우 추정치 사용
+        return estimated_ratio, "estimated"
+        
+    except Exception:
+        return None, None
+
 def calculate_rsi(data, window=14):
     try:
         delta = data.diff()
@@ -317,6 +366,25 @@ def interpret_rsi(rsi):
         return "과매수 (매도 신호)", "bullish"
     else:
         return "중립", "neutral"
+
+def interpret_buffett_indicator(ratio, data_type):
+    if ratio is None:
+        return "데이터 없음", "neutral"
+    
+    data_suffix = " (추정)" if data_type == "estimated" else ""
+    
+    if ratio <= 80:
+        return f"심각한 저평가{data_suffix} (강력한 매수 신호)", "bearish"
+    elif ratio <= 100:
+        return f"저평가{data_suffix} (매수 신호)", "bearish"  
+    elif ratio <= 120:
+        return f"적정 가치{data_suffix} (중립)", "neutral"
+    elif ratio <= 140:
+        return f"약간 고평가{data_suffix} (주의)", "neutral"
+    elif ratio <= 180:
+        return f"고평가{data_suffix} (매도 신호)", "bullish"
+    else:
+        return f"심각한 고평가{data_suffix} (강력한 매도 신호)", "bullish"
 
 def interpret_usd_krw(rate, change_amount, change_pct):
     if rate is None:
@@ -416,6 +484,7 @@ def market_sentiment_tab():
         fgi = fetch_fgi()
         pci = fetch_pci()
         usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct = get_usd_krw_rate()
+        buffett_ratio, buffett_type = fetch_buffett_indicator()
         
         # Get RSI data
         try:
@@ -424,7 +493,7 @@ def market_sentiment_tab():
         except:
             rsi = None
 
-    # Display metrics in responsive columns (2x3 grid)
+    # Display metrics in responsive columns (2x4 grid)
     col1, col2 = st.columns([1, 1])
     
     with col1:
@@ -453,6 +522,13 @@ def market_sentiment_tab():
                           price_vs_sma)
         else:
             display_metric("🚀 QQQ vs 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
+        
+        # Buffett Indicator
+        if buffett_ratio is not None:
+            buffett_interp, buffett_sentiment = interpret_buffett_indicator(buffett_ratio, buffett_type)
+            display_metric("💰 버핏 지수 (시총/GDP)", f"{buffett_ratio:.1f}%", buffett_interp, buffett_sentiment)
+        else:
+            display_metric("💰 버핏 지수 (시총/GDP)", "N/A", "데이터 로딩 실패", "neutral")
 
     with col2:
         # Put/Call Ratio
@@ -486,6 +562,7 @@ def market_sentiment_tab():
             <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 </li>
             <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
             <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
+            <li><strong>버핏 지수</strong>: 미국 주식 시가총액 대비 GDP 비율 (100% 이하 저평가, 180% 이상 고평가)</li>
             <li><strong>원달러 환율</strong>: USD/KRW 환율 (상승시 원화약세, 하락시 원화강세)</li>
         </ul>
         <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
