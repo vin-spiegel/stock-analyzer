@@ -483,7 +483,7 @@ def display_metric(title, value, interpretation, sentiment):
 
 # Tab 1: Market Sentiment
 def market_sentiment_tab():
-    st.markdown('<div class="sub-header">📊 실시간 시장 지표</div>', unsafe_allow_html=True)
+    # st.markdown('<div class="sub-header">📊 실시간 시장 지표</div>', unsafe_allow_html=True)
     
     # Refresh button
     col_refresh, col_auto = st.columns([1, 2])
@@ -525,6 +525,13 @@ def market_sentiment_tab():
         else:
             display_metric("😨 공포 & 탐욕 지수", "N/A", "데이터 로딩 실패", "neutral")
         
+        # Buffett Indicator (moved to second position)
+        if buffett_ratio is not None:
+            buffett_interp, buffett_sentiment = interpret_buffett_indicator(buffett_ratio, buffett_type)
+            display_metric("💰 버핏 지수 (시총/GDP)", f"{buffett_ratio:.1f}%", buffett_interp, buffett_sentiment)
+        else:
+            display_metric("💰 버핏 지수 (시총/GDP)", "N/A", "데이터 로딩 실패", "neutral")
+        
         # VIX
         if vix is not None:
             vix_interp, vix_sentiment = interpret_vix(vix)
@@ -543,13 +550,6 @@ def market_sentiment_tab():
                           price_vs_sma)
         else:
             display_metric("🚀 QQQ vs 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
-        
-        # Buffett Indicator
-        if buffett_ratio is not None:
-            buffett_interp, buffett_sentiment = interpret_buffett_indicator(buffett_ratio, buffett_type)
-            display_metric("💰 버핏 지수 (시총/GDP)", f"{buffett_ratio:.1f}%", buffett_interp, buffett_sentiment)
-        else:
-            display_metric("💰 버핏 지수 (시총/GDP)", "N/A", "데이터 로딩 실패", "neutral")
 
     with col2:
         # Put/Call Ratio
@@ -600,7 +600,7 @@ def market_sentiment_tab():
 
 # Tab 2: N-Day Drop Analysis
 def nday_analysis_tab():
-    st.markdown('<div class="sub-header">📉 N일 후 반등 여부 분석기</div>', unsafe_allow_html=True)
+    # st.markdown('<div class="sub-header">📉 N일 후 반등 여부 분석기</div>', unsafe_allow_html=True)
     
     st.markdown("""
     <div class="info-box">
@@ -910,7 +910,7 @@ def nday_analysis_tab():
 
 # Main App
 def main():
-    st.markdown('<h1 class="main-header">📈 주식 시장 분석 대시보드</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">주식 시장 분석 대시보드</h1>', unsafe_allow_html=True)
     
     # Create tabs
     tab1, tab2 = st.tabs(["📊 시장 감정", "📉 N일 후 분석"])
