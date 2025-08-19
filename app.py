@@ -266,16 +266,32 @@ def fetch_pci():
 def fetch_buffett_indicator():
     """버핏 지수 (미국 주식 시가총액 대비 GDP 비율) 가져오기"""
     try:
-        # FRED API를 통해 Wilshire 5000 Total Market Index와 GDP 데이터 가져오기
-        # 대안으로 yfinance를 통해 시장 지수와 추정치 사용
+        # Wilshire 5000 지수를 yfinance로 직접 가져오기
+        wilshire = yf.Ticker("^W5000")
+        wilshire_data = wilshire.history(period="1d")
         
-        # 방법 1: 간접 계산 - S&P 500 시가총액 기반 추정
+        if not wilshire_data.empty:
+            wilshire_value = wilshire_data['Close'].iloc[-1]
+            
+            # Wilshire 5000은 미국 전체 시장 시가총액을 나타냄 (단위: 십억 달러)
+            # GDP는 약 25조 달러 (2024년 기준)
+            # 실제 GDP 데이터는 FRED API가 필요하지만, 최근 추정치 사용
+            gdp_estimate = 29184  # 27조 달러 (2024년 추정)
+            # 29184890
+            # 버핏 지수 계산: (시가총액 / GDP) * 100
+            # Wilshire 5000 지수는 포인트당 약 10억 달러를 나타냄
+            market_cap = wilshire_value  # 십억 달러 단위
+            buffett_ratio = (market_cap / gdp_estimate) * 100
+            
+            return buffett_ratio, "wilshire"
+        
+        # Wilshire 5000이 실패한 경우 SPY 기반 추정
         spy = yf.Ticker("SPY")
         spy_data = spy.history(period="1d")
         if spy_data.empty:
             return None, None
             
-        # SPY ETF 가격을 기반으로 S&P 500 추정 시가총액 계산 (간단한 근사치)
+        # SPY ETF 가격을 기반으로 S&P 500 추정 시가총액 계산
         spy_price = spy_data['Close'].iloc[-1]
         
         # 대략적인 버핏 지수 계산 (SPY 기반 추정)
@@ -371,7 +387,12 @@ def interpret_buffett_indicator(ratio, data_type):
     if ratio is None:
         return "데이터 없음", "neutral"
     
-    data_suffix = " (추정)" if data_type == "estimated" else ""
+    if data_type == "wilshire":
+        data_suffix = " (Wilshire 5000 기준)"
+    elif data_type == "estimated":
+        data_suffix = " (추정)"
+    else:
+        data_suffix = ""
     
     if ratio <= 80:
         return f"심각한 저평가{data_suffix} (강력한 매수 신호)", "bearish"
