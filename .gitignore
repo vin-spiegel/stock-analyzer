@@ -45,8 +45,8 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# Streamlit (secrets only — config.toml is tracked)
+.streamlit/secrets.toml
 
 # Logs
 *.log

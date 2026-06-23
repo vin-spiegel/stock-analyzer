@@ -29,195 +29,274 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* ── Streamlit 기본 UI 숨김 ── */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard-dynamic-subset.css');
+
+/* ── Streamlit chrome 제거 ── */
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none !important; }
 [data-testid="stToolbar"] { display: none !important; }
 
-/* ── 전체 배경 ── */
-.stApp { background: #f4f6fa; }
-.block-container { padding: 2rem 2.5rem 3rem; max-width: 1280px; }
+/* ── 베이스 ── */
+html, body, .stApp {
+    background: #0C0D10 !important;
+    font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.block-container { padding: 1.75rem 2rem 3rem; max-width: 1180px; }
 
-/* ── 앱 헤더 ── */
+/* ── 헤더 ── */
 .app-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid #e2e8f0;
+    gap: 0.6rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1C1E28;
 }
 .app-header .logo {
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     font-weight: 800;
-    color: #1e293b;
-    letter-spacing: -0.5px;
+    color: #F0F1F5;
+    letter-spacing: -0.4px;
 }
-.app-header .logo span { color: #4f46e5; }
+.app-header .logo span { color: #00D09C; }
 .app-header .badge {
-    background: #ede9fe;
-    color: #4f46e5;
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 999px;
-    letter-spacing: 0.3px;
+    background: rgba(0,208,156,.12);
+    color: #00D09C;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
+    border: 1px solid rgba(0,208,156,.22);
 }
 
 /* ── 메트릭 카드 ── */
 .metric-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 1.1rem 1.25rem;
-    margin-bottom: 0.9rem;
-    border-left: 4px solid #cbd5e1;
-    transition: box-shadow 0.15s;
+    background: #13141A;
+    border: 1px solid #1C1E28;
+    border-radius: 12px;
+    padding: 0.95rem 1.1rem 0.95rem 1.3rem;
+    margin-bottom: 0.65rem;
+    position: relative;
+    overflow: hidden;
+    transition: background .15s;
 }
-.metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
-.metric-card.bullish { border-left-color: #10b981; background: #f0fdf8; }
-.metric-card.bearish { border-left-color: #ef4444; background: #fff5f5; }
-.metric-card.neutral  { border-left-color: #f59e0b; background: #fffbeb; }
+.metric-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+}
+.metric-card:hover { background: #181921; }
+.metric-card.bullish::before { background: #00D09C; }
+.metric-card.bearish::before { background: #FF4D6D; }
+.metric-card.neutral::before  { background: #FFB020; }
 
 .metric-card .mc-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: #4A4D60;
     margin-bottom: 0.35rem;
 }
 .metric-card .mc-value {
-    font-size: 1.35rem;
+    font-size: 1.45rem;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 0.2rem;
-    line-height: 1.2;
+    color: #E8E9F0;
+    margin-bottom: 0.18rem;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
 }
-.metric-card .mc-value.bullish { color: #059669; }
-.metric-card .mc-value.bearish { color: #dc2626; }
+.metric-card .mc-value.bullish { color: #00D09C; }
+.metric-card .mc-value.bearish { color: #FF4D6D; }
 .metric-card .mc-interp {
-    font-size: 0.82rem;
-    color: #64748b;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    color: #555870;
+    line-height: 1.45;
 }
 
 /* ── 신호 배지 ── */
 .signal-pill {
     display: inline-block;
-    font-size: 0.68rem;
+    font-size: 0.58rem;
     font-weight: 700;
-    padding: 2px 9px;
-    border-radius: 999px;
+    padding: 2px 6px;
+    border-radius: 4px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    margin-left: 0.4rem;
+    letter-spacing: 0.3px;
+    margin-left: 0.45rem;
     vertical-align: middle;
+    position: relative;
+    top: -1px;
 }
-.pill-bullish { background: #d1fae5; color: #065f46; }
-.pill-bearish { background: #fee2e2; color: #991b1b; }
-.pill-neutral  { background: #fef3c7; color: #92400e; }
+.pill-bullish { background: rgba(0,208,156,.14); color: #00D09C; border: 1px solid rgba(0,208,156,.22); }
+.pill-bearish { background: rgba(255,77,109,.14); color: #FF4D6D; border: 1px solid rgba(255,77,109,.22); }
+.pill-neutral  { background: rgba(255,176,32,.14); color: #FFB020; border: 1px solid rgba(255,176,32,.22); }
 
-/* ── 인포 박스 ── */
+/* ── 인포 카드 ── */
 .info-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    margin: 1rem 0;
+    background: #13141A;
+    border: 1px solid #1C1E28;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin: 0.75rem 0;
 }
 .info-card h4 {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    color: #475569;
-    margin-bottom: 0.6rem;
+    color: #4A4D60;
+    margin-bottom: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
 }
-.info-card ul { margin: 0; padding-left: 1.2rem; }
-.info-card li { font-size: 0.85rem; color: #64748b; margin-bottom: 0.3rem; }
-.info-card li strong { color: #334155; }
+.info-card ul { margin: 0; padding-left: 1rem; }
+.info-card li { font-size: 0.8rem; color: #555870; margin-bottom: 0.22rem; }
+.info-card li strong { color: #8A8DA8; }
 .info-card .tip {
-    margin-top: 0.75rem;
-    font-size: 0.78rem;
-    color: #94a3b8;
-    border-top: 1px solid #f1f5f9;
-    padding-top: 0.6rem;
+    margin-top: 0.55rem;
+    font-size: 0.72rem;
+    color: #393B4A;
+    border-top: 1px solid #1C1E28;
+    padding-top: 0.5rem;
 }
 
-/* ── 결과 박스 ── */
+/* ── 결과 카드 ── */
 .result-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 1.5rem;
+    background: #13141A;
+    border: 1px solid #1C1E28;
+    border-radius: 12px;
+    padding: 1.25rem;
     text-align: center;
-    margin: 0.5rem 0;
+    margin: 0.4rem 0;
 }
-.result-card h4 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; color: #94a3b8; }
-.result-card .big-num { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 0.4rem; }
-.result-card p { font-size: 0.82rem; color: #64748b; margin: 0; }
-.result-card.sell { border-top: 3px solid #ef4444; }
-.result-card.sell .big-num { color: #dc2626; }
-.result-card.buy  { border-top: 3px solid #10b981; }
-.result-card.buy  .big-num { color: #059669; }
+.result-card h4 {
+    font-size: 0.67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.45rem;
+    color: #4A4D60;
+}
+.result-card .big-num {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+    font-variant-numeric: tabular-nums;
+}
+.result-card p { font-size: 0.76rem; color: #555870; margin: 0; }
+.result-card.sell { border-top: 2px solid #FF4D6D; }
+.result-card.sell .big-num { color: #FF4D6D; }
+.result-card.buy  { border-top: 2px solid #00D09C; }
+.result-card.buy  .big-num { color: #00D09C; }
 
 /* ── 전략 카드 ── */
 .strategy-card {
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    margin: 0.5rem 0;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-}
-.strategy-card.sell-strat { border-left: 5px solid #ef4444; }
-.strategy-card.buy-strat  { border-left: 5px solid #10b981; }
-.strategy-card.neutral-strat { border-left: 5px solid #f59e0b; }
-.strategy-card h4 { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem; }
-.strategy-card p { font-size: 0.85rem; color: #64748b; margin: 0.2rem 0; }
-.strategy-card strong { color: #334155; }
-
-/* ── 탭 스타일 ── */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 4px;
-    background: #ffffff;
     border-radius: 12px;
-    padding: 4px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 1.5rem;
+    padding: 1rem 1.2rem;
+    margin: 0.4rem 0;
+    border: 1px solid #1C1E28;
+    background: #13141A;
+}
+.strategy-card.sell-strat { border-left: 4px solid #FF4D6D; }
+.strategy-card.buy-strat  { border-left: 4px solid #00D09C; }
+.strategy-card.neutral-strat { border-left: 4px solid #FFB020; }
+.strategy-card h4 { font-size: 0.88rem; font-weight: 700; color: #C8CAD8; margin-bottom: 0.3rem; }
+.strategy-card p { font-size: 0.8rem; color: #555870; margin: 0.12rem 0; }
+.strategy-card strong { color: #8A8DA8; }
+
+/* ── 탭 ── */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 2px;
+    background: #13141A;
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid #1C1E28;
+    margin-bottom: 1.25rem;
 }
 .stTabs [data-baseweb="tab"] {
-    border-radius: 9px;
-    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    padding: 0.42rem 1.2rem;
     font-weight: 600;
-    font-size: 0.88rem;
-    color: #64748b;
+    font-size: 0.83rem;
+    color: #4A4D60;
+    background: transparent !important;
 }
 .stTabs [aria-selected="true"] {
-    background: #4f46e5 !important;
-    color: #ffffff !important;
+    background: #0C0D10 !important;
+    color: #F0F1F5 !important;
 }
+.stTabs [data-baseweb="tab-highlight"] { display: none; }
+.stTabs [data-baseweb="tab-border"] { display: none; }
 
-/* ── 분리선 ── */
-hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5rem 0; }
+/* ── 구분선 ── */
+hr { border: none; border-top: 1px solid #1C1E28; margin: 1.25rem 0; }
 
-/* ── 섹션 제목 ── */
+/* ── 섹션 타이틀 ── */
 .section-title {
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    color: #1e293b;
-    margin: 1.5rem 0 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    color: #4A4D60;
+    margin: 1.25rem 0 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
+
+/* ── Streamlit native 컴포넌트 다크 오버라이드 ── */
+[data-testid="metric-container"] {
+    background: #13141A;
+    border: 1px solid #1C1E28;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+[data-testid="stMetricValue"] { color: #E8E9F0 !important; font-variant-numeric: tabular-nums; }
+[data-testid="stMetricLabel"] { color: #4A4D60 !important; font-size: 0.75rem !important; }
+
+/* 버튼 */
+.stButton > button {
+    background: #00D09C !important;
+    color: #0C0D10 !important;
+    border: none !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+}
+.stButton > button:hover { background: #00BC8C !important; }
+button[kind="primary"] { background: #00D09C !important; color: #0C0D10 !important; }
+
+/* 알림/메시지 */
+[data-testid="stAlert"] {
+    background: #13141A !important;
+    border: 1px solid #1C1E28 !important;
+    border-radius: 10px !important;
+}
+
+/* 텍스트 인풋 */
+.stTextInput > div > div > input {
+    background: #13141A !important;
+    border: 1px solid #1C1E28 !important;
+    color: #E8E9F0 !important;
+    border-radius: 8px !important;
+}
+
+/* 셀렉트박스 */
+[data-baseweb="select"] > div:first-child {
+    background: #13141A !important;
+    border-color: #1C1E28 !important;
+    border-radius: 8px !important;
+}
+
+/* 데이터프레임 */
+.stDataFrame { border-radius: 10px; overflow: hidden; border: 1px solid #1C1E28; }
 
 /* ── 모바일 ── */
 @media (max-width: 768px) {
-    .block-container { padding: 1rem 1rem 2rem; }
-    .metric-card .mc-value { font-size: 1.1rem; }
-    .result-card .big-num { font-size: 1.6rem; }
+    .block-container { padding: 1rem 0.75rem 2rem; }
+    .metric-card .mc-value { font-size: 1.2rem; }
+    .result-card .big-num { font-size: 1.9rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -523,21 +602,19 @@ def add_nday_later_prices(signal_days, data, days_after):
 
 def display_metric(title, value, interpretation, sentiment):
     pill_class = f"pill-{sentiment}"
-    pill_label = {"bullish": "매수 고려", "bearish": "매도 고려", "neutral": "중립"}.get(sentiment, "")
+    pill_label = {"bullish": "매수", "bearish": "매도", "neutral": "중립"}.get(sentiment, "")
     value_class = sentiment if sentiment in ("bullish", "bearish") else ""
     st.markdown(f"""
     <div class="metric-card {sentiment}">
         <div class="mc-label">{title}</div>
-        <div class="mc-value {value_class}">{value}
-            <span class="signal-pill {pill_class}">{pill_label}</span>
-        </div>
+        <div class="mc-value {value_class}">{value}<span class="signal-pill {pill_class}">{pill_label}</span></div>
         <div class="mc-interp">{interpretation}</div>
     </div>
     """, unsafe_allow_html=True)
 
 # Tab 1: Market Sentiment
 def market_sentiment_tab():
-    col_refresh, col_auto = st.columns([1, 3])
+    col_refresh, col_auto = st.columns([1, 4])
     with col_refresh:
         if st.button("새로고침", key="refresh_market"):
             st.cache_data.clear()
@@ -565,60 +642,55 @@ def market_sentiment_tab():
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        # Fear & Greed Index
         if fgi is not None:
             fgi_interp, fgi_sentiment = interpret_fgi(fgi)
-            display_metric("😨 공포 & 탐욕 지수", f"{fgi}/100", fgi_interp, fgi_sentiment)
+            display_metric("공포 & 탐욕 지수", f"{fgi}/100", fgi_interp, fgi_sentiment)
         else:
-            display_metric("😨 공포 & 탐욕 지수", "N/A", "데이터 로딩 실패", "neutral")
-        
-        # Buffett Indicator (moved to second position)
+            display_metric("공포 & 탐욕 지수", "N/A", "데이터 로딩 실패", "neutral")
+
         if buffett_ratio is not None:
             buffett_interp, buffett_sentiment = interpret_buffett_indicator(buffett_ratio, buffett_type)
-            display_metric("💰 버핏 지수 (시총/GDP)", f"{buffett_ratio:.1f}%", buffett_interp, buffett_sentiment)
+            display_metric("버핏 지수 (시총/GDP)", f"{buffett_ratio:.1f}%", buffett_interp, buffett_sentiment)
         else:
-            display_metric("💰 버핏 지수 (시총/GDP)", "N/A", "데이터 로딩 실패", "neutral")
-        
-        # VIX
+            display_metric("버핏 지수 (시총/GDP)", "N/A", "데이터 로딩 실패", "neutral")
+
         if vix is not None:
             vix_interp, vix_sentiment = interpret_vix(vix)
-            display_metric("📈 VIX (변동성 지수)", f"{vix:.2f}", vix_interp, vix_sentiment)
+            display_metric("VIX 변동성 지수", f"{vix:.2f}", vix_interp, vix_sentiment)
         else:
-            display_metric("📈 VIX (변동성 지수)", "로딩중...", "데이터 새로고침 중 (잠시 후 다시 시도)", "neutral")
-        
-        # QQQ vs 200-day SMA
+            display_metric("VIX 변동성 지수", "—", "데이터 새로고침 중", "neutral")
+
         if qqq_price is not None and qqq_sma is not None:
             price_vs_sma = "bullish" if qqq_price > qqq_sma else "bearish"
             trend_text = "상승 추세" if qqq_price > qqq_sma else "하락 추세"
             percentage_diff = ((qqq_price - qqq_sma) / qqq_sma) * 100
-            display_metric("🚀 QQQ vs 200일 이동평균", 
-                          f"현재: ${qqq_price:.2f} | 200일 평균: ${qqq_sma:.2f} ({percentage_diff:+.1f}%)", 
-                          f"{trend_text} - 200일 이동평균 {'위' if qqq_price > qqq_sma else '아래'}", 
-                          price_vs_sma)
+            display_metric(
+                "QQQ / 200일 이동평균",
+                f"${qqq_price:.2f}  ·  200MA ${qqq_sma:.2f}  ({percentage_diff:+.1f}%)",
+                trend_text,
+                price_vs_sma,
+            )
         else:
-            display_metric("🚀 QQQ vs 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
+            display_metric("QQQ / 200일 이동평균", "N/A", "데이터 로딩 실패", "neutral")
 
     with col2:
-        # Put/Call Ratio
         if pci is not None:
             pci_interp, pci_sentiment = interpret_pci(pci)
-            display_metric("⚖️ Put/Call 비율", f"{pci:.3f}", pci_interp, pci_sentiment)
+            display_metric("Put/Call 비율", f"{pci:.3f}", pci_interp, pci_sentiment)
         else:
-            display_metric("⚖️ Put/Call 비율", "N/A", "데이터 로딩 실패", "neutral")
-        
-        # RSI
+            display_metric("Put/Call 비율", "N/A", "데이터 로딩 실패", "neutral")
+
         if rsi is not None:
             rsi_interp, rsi_sentiment = interpret_rsi(rsi)
-            display_metric("📊 RSI (S&P500)", f"{rsi:.1f}", rsi_interp, rsi_sentiment)
+            display_metric("RSI — S&P500", f"{rsi:.1f}", rsi_interp, rsi_sentiment)
         else:
-            display_metric("📊 RSI (S&P500)", "N/A", "데이터 로딩 실패", "neutral")
-        
-        # USD/KRW 환율
+            display_metric("RSI — S&P500", "N/A", "데이터 로딩 실패", "neutral")
+
         if usd_krw_rate is not None:
             usd_krw_interp, usd_krw_sentiment = interpret_usd_krw(usd_krw_rate, usd_krw_change_amount, usd_krw_change_pct)
-            display_metric("🔁 원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
+            display_metric("원달러 환율", f"₩{usd_krw_rate:.2f}", usd_krw_interp, usd_krw_sentiment)
         else:
-            display_metric("🔁 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
+            display_metric("원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
 
     st.markdown("""
     <div class="info-card">
@@ -658,18 +730,18 @@ def nday_analysis_tab():
     
     # Input controls
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-    
+
     with col1:
-        ticker_input = st.text_input("📊 종목 입력", 
-                                   value="QQQ", 
-                                   help="예: QQQ, SPY, AAPL, 삼성전자, 005930 등")
-    
+        ticker_input = st.text_input("종목 입력",
+                                     value="QQQ",
+                                     help="예: QQQ, SPY, AAPL, 삼성전자, 005930 등")
+
     with col2:
-        drop_threshold = st.slider("📉 하락 기준 (%)", 
-                                 min_value=0.5, max_value=20.0, 
-                                 value=1.0, step=0.5,
-                                 help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
-    
+        drop_threshold = st.slider("하락 기준 (%)",
+                                   min_value=0.5, max_value=20.0,
+                                   value=1.0, step=0.5,
+                                   help="전일 대비 이 퍼센트 이상 하락한 날을 분석")
+
     with col3:
         day_options = {
             "1일": 1,
@@ -684,17 +756,15 @@ def nday_analysis_tab():
         }
         
         selected_label = st.selectbox(
-            "📆 분석 기간 (일)", 
+            "분석 기간",
             options=list(day_options.keys()),
-            index=1,  # "3일"이 기본값
+            index=1,
             help="하락일로부터 며칠 후를 분석할지 선택"
         )
-    
-        # 실제 값 가져오기
         days_after = day_options[selected_label]
-    
+
     with col4:
-        start_date = st.date_input("📅 분석 시작일", 
+        start_date = st.date_input("시작일",
                                  value=pd.to_datetime("2020-01-01"),
                                  min_value=pd.to_datetime("1990-01-01"),  # 원하는 최소 날짜
                                  max_value=pd.to_datetime("today"),       # 최대 날짜는 오늘로 제한
@@ -708,7 +778,7 @@ def nday_analysis_tab():
     elif processed_ticker != ticker_input.upper():
         st.info(f"🌏 해외 주식: **{processed_ticker}** 분석 준비")
     
-    if st.button("🔍 분석 실행", type="primary", use_container_width=True):
+    if st.button("분석 실행", type="primary", use_container_width=True):
         with st.spinner("데이터를 불러오고 분석 중... 잠시만 기다려주세요."):
             try:
                 # Download data
@@ -780,28 +850,25 @@ def nday_analysis_tab():
                 
                 # Display main results
                 display_ticker = f"{company_name} ({processed_ticker})" if company_name else processed_ticker
-                st.success(f"✅ **{display_ticker}** 분석 완료! {total_signals}개의 하락 신호를 분석했습니다.")
+                st.success(f"**{display_ticker}** 분석 완료 — {total_signals}개 하락 신호")
                 
                 # Main metrics
                 col1, col2, col3, col4 = st.columns(4)
                 
                 with col1:
-                    st.metric("📊 총 신호", f"{total_signals}회")
-                
+                    st.metric("총 신호", f"{total_signals}회")
                 with col2:
-                    st.metric("📈 평균 하락률", f"{signal_days['Pct_Change'].mean():.2f}%")
-                    
+                    st.metric("평균 하락률", f"{signal_days['Pct_Change'].mean():.2f}%")
                 with col3:
-                    st.metric("📉 최대 하락률", f"{signal_days['Pct_Change'].min():.2f}%")
-                    
+                    st.metric("최대 하락률", f"{signal_days['Pct_Change'].min():.2f}%")
                 with col4:
                     avg_nd_change = signal_days[f'Price_Change_{days_after}D'].mean()
-                    st.metric(f"🔄 평균 {days_after}일 변화", f"{avg_nd_change:+.2f}%")
+                    st.metric(f"평균 {days_after}일 변화", f"{avg_nd_change:+.2f}%")
                 
                 st.markdown("---")
                 
                 # Win/Lose breakdown
-                st.subheader(f"🎯 {days_after}일 후 하락 여부 분석 결과")
+                st.subheader(f"{days_after}일 후 방향 분석")
                 
                 result_cols = st.columns(2)
                 
@@ -857,7 +924,7 @@ def nday_analysis_tab():
                 # Recent examples
                 if len(signal_days) > 0:
                     st.markdown("---")
-                    st.subheader("📅 최근 하락 신호 사례 (최근 50개)")
+                    st.subheader("최근 하락 신호 사례 (최근 50개)")
                     
                     recent_signals = signal_days.tail(50).sort_index(ascending=False).copy()          
                     recent_signals.index = recent_signals.index.strftime('%Y-%m-%d')
@@ -904,18 +971,15 @@ def nday_analysis_tab():
                         
                 # Additional statistics
                 st.markdown("---")
-                st.subheader("📈 상세 통계")
-                
+                st.subheader("상세 통계")
+
                 col1, col2, col3 = st.columns(3)
-                
                 with col1:
                     avg_win_change = signal_days[signal_days['Result'] == 'Win'][f'Price_Change_{days_after}D'].mean()
-                    st.metric(f"하락 시 평균 {days_after}일 변화", f"{avg_win_change:+.2f}%" if not pd.isna(avg_win_change) else "N/A")
-                
+                    st.metric(f"매도 유리 시 평균 {days_after}일 변화", f"{avg_win_change:+.2f}%" if not pd.isna(avg_win_change) else "N/A")
                 with col2:
                     avg_lose_change = signal_days[signal_days['Result'] == 'Lose'][f'Price_Change_{days_after}D'].mean()
-                    st.metric(f"상승 시 평균 {days_after}일 변화", f"{avg_lose_change:+.2f}%" if not pd.isna(avg_lose_change) else "N/A")
-                
+                    st.metric(f"대기 유리 시 평균 {days_after}일 변화", f"{avg_lose_change:+.2f}%" if not pd.isna(avg_lose_change) else "N/A")
                 with col3:
                     median_change = signal_days[f'Price_Change_{days_after}D'].median()
                     st.metric(f"{days_after}일 변화 중간값", f"{median_change:+.2f}%")
@@ -949,7 +1013,7 @@ def nday_analysis_tab():
 def main():
     st.markdown("""
     <div class="app-header">
-        <div class="logo">Stock<span>Analyzer</span></div>
+        <div class="logo">Stock<span>.</span></div>
         <span class="badge">Beta</span>
     </div>
     """, unsafe_allow_html=True)
@@ -965,9 +1029,9 @@ def main():
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
     st.markdown(f"""
     <hr>
-    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:#94a3b8; padding: 0 0.25rem;">
-        <span>StockAnalyzer &nbsp;·&nbsp; 미국·한국 주식, 인덱스, 코인 지원</span>
-        <span>업데이트 {current_time} &nbsp;·&nbsp; 투자 참고용, 실제 투자 결정의 근거로 사용하지 마세요</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#393B4A; padding: 0 0.1rem;">
+        <span>Stock. &nbsp;·&nbsp; 미국·한국 주식, 인덱스, 코인</span>
+        <span>{current_time} &nbsp;·&nbsp; 투자 참고용</span>
     </div>
     """, unsafe_allow_html=True)
 
