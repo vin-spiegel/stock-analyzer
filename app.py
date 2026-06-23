@@ -393,33 +393,33 @@ def interpret_fgi(fgi):
     if fgi is None:
         return "데이터 없음", "neutral"
     if fgi <= 25:
-        return "극심한 공포 (매수 신호)", "bearish"
+        return "극심한 공포 (매수 신호)", "bullish"
     elif fgi <= 45:
-        return "공포 (매수 신호)", "bearish"
+        return "공포 (매수 신호)", "bullish"
     elif fgi <= 55:
         return "중립적 (유지 또는 관망)", "neutral"
     elif fgi <= 75:
-        return "탐욕적 (매도 신호)", "bullish"
+        return "탐욕적 (매도 신호)", "bearish"
     else:
-        return "극도로 탐욕적 (매도 신호)", "bullish"
+        return "극도로 탐욕적 (매도 신호)", "bearish"
 
 def interpret_vix(vix):
     if vix is None:
         return "데이터 없음", "neutral"
     if vix < 15:
-        return "변동성 낮음 (상승장) 매도 신호", "bullish"
+        return "변동성 낮음 (안정적 상승장)", "bullish"
     elif vix < 25:
         return "변동성 중간 (중립)", "neutral"
     else:
-        return "변동성 높음 (하락장) 매수 신호", "bearish"
+        return "변동성 높음 (불안정)", "bearish"
 
 def interpret_pci(pci):
     if pci is None:
         return "데이터 없음", "neutral"
     if pci > 0.95:
-        return "하락 베팅 증가 (매수 신호)", "bearish"
+        return "하락 베팅 증가 (역발상 매수 신호)", "bullish"
     elif pci < 0.65:
-        return "상승 베팅 증가 (매도 신호)", "bullish"
+        return "상승 베팅 증가 (역발상 매도 신호)", "bearish"
     else:
         return "중립적 상태", "neutral"
 
@@ -427,9 +427,9 @@ def interpret_rsi(rsi):
     if rsi is None:
         return "데이터 없음", "neutral"
     if rsi < 30:
-        return "과매도 (매수 신호)", "bearish"
+        return "과매도 (매수 신호)", "bullish"
     elif rsi > 70:
-        return "과매수 (매도 신호)", "bullish"
+        return "과매수 (매도 신호)", "bearish"
     else:
         return "중립", "neutral"
 
@@ -445,17 +445,17 @@ def interpret_buffett_indicator(ratio, data_type):
         data_suffix = ""
     
     if ratio <= 80:
-        return f"심각한 저평가{data_suffix} (강력한 매수 신호)", "bearish"
+        return f"심각한 저평가{data_suffix} (강력한 매수 신호)", "bullish"
     elif ratio <= 100:
-        return f"저평가{data_suffix} (매수 신호)", "bearish"  
+        return f"저평가{data_suffix} (매수 신호)", "bullish"
     elif ratio <= 120:
         return f"적정 가치{data_suffix} (중립)", "neutral"
     elif ratio <= 140:
         return f"약간 고평가{data_suffix} (주의)", "neutral"
     elif ratio <= 180:
-        return f"고평가{data_suffix} (매도 신호)", "bullish"
+        return f"고평가{data_suffix} (매도 신호)", "bearish"
     else:
-        return f"심각한 고평가{data_suffix} (강력한 매도 신호)", "bullish"
+        return f"심각한 고평가{data_suffix} (강력한 매도 신호)", "bearish"
 
 def interpret_usd_krw(rate, change_amount, change_pct):
     if rate is None:
@@ -523,7 +523,7 @@ def add_nday_later_prices(signal_days, data, days_after):
 
 def display_metric(title, value, interpretation, sentiment):
     pill_class = f"pill-{sentiment}"
-    pill_label = {"bullish": "매도 고려", "bearish": "매수 고려", "neutral": "중립"}.get(sentiment, "")
+    pill_label = {"bullish": "매수 고려", "bearish": "매도 고려", "neutral": "중립"}.get(sentiment, "")
     value_class = sentiment if sentiment in ("bullish", "bearish") else ""
     st.markdown(f"""
     <div class="metric-card {sentiment}">

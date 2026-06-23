@@ -143,14 +143,14 @@ def _interpret_fgi(v):
     if v is None:
         return "데이터 없음", "neutral"
     if v <= 25:
-        return "극심한 공포", "bearish"
+        return "극심한 공포", "bullish"   # 공포 = 매수 기회
     if v <= 45:
-        return "공포", "bearish"
+        return "공포", "bullish"
     if v <= 55:
         return "중립", "neutral"
     if v <= 75:
-        return "탐욕적", "bullish"
-    return "극도로 탐욕적", "bullish"
+        return "탐욕적", "bearish"        # 탐욕 = 매도 고려
+    return "극도로 탐욕적", "bearish"
 
 
 def _interpret_vix(v):
@@ -167,9 +167,9 @@ def _interpret_pci(v):
     if v is None:
         return "데이터 없음", "neutral"
     if v > 0.95:
-        return "하락 베팅 증가", "bearish"
+        return "하락 베팅 증가", "bullish"  # 풋 많음 = 공포 = 역발상 매수
     if v < 0.65:
-        return "상승 베팅 증가", "bullish"
+        return "상승 베팅 증가", "bearish"  # 콜 많음 = 탐욕 = 역발상 매도
     return "중립적", "neutral"
 
 
@@ -177,9 +177,9 @@ def _interpret_rsi(v):
     if v is None:
         return "데이터 없음", "neutral"
     if v < 30:
-        return "과매도", "bearish"
+        return "과매도", "bullish"   # 과매도 = 매수 신호
     if v > 70:
-        return "과매수", "bullish"
+        return "과매수", "bearish"   # 과매수 = 매도 신호
     return "중립", "neutral"
 
 
@@ -188,16 +188,16 @@ def _interpret_buffett(ratio, dtype):
         return "데이터 없음", "neutral"
     suffix = " (Wilshire 5000)" if dtype == "wilshire" else " (추정)" if dtype == "estimated" else ""
     if ratio <= 80:
-        return f"심각한 저평가{suffix}", "bearish"
+        return f"심각한 저평가{suffix}", "bullish"   # 저평가 = 매수 신호
     if ratio <= 100:
-        return f"저평가{suffix}", "bearish"
+        return f"저평가{suffix}", "bullish"
     if ratio <= 120:
         return f"적정 가치{suffix}", "neutral"
     if ratio <= 140:
         return f"약간 고평가{suffix}", "neutral"
     if ratio <= 180:
-        return f"고평가{suffix}", "bullish"
-    return f"심각한 고평가{suffix}", "bullish"
+        return f"고평가{suffix}", "bearish"           # 고평가 = 매도 신호
+    return f"심각한 고평가{suffix}", "bearish"
 
 
 def _interpret_usd_krw(rate, chg, chg_pct):
