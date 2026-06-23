@@ -3,7 +3,7 @@
 주식/지수/코인 시장 분석 도구를 제공하는 MCP 서버입니다.
 미국 주식, 한국 주식(약 2,000종목), 시장 심리 지표, N일 후 하락 분석 기능을 포함합니다.
 
-**MCP Server URL**: `https://fast-stock.up.railway.app/mcp`
+**MCP Server URL**: `https://mcp-server-production-8fc7.up.railway.app/mcp`
 
 ---
 
@@ -12,7 +12,7 @@
 터미널에서 아래 명령어 하나로 설치됩니다:
 
 ```bash
-claude mcp add --transport http stock-analyzer https://fast-stock.up.railway.app/mcp
+claude mcp add --transport http stock-analyzer https://mcp-server-production-8fc7.up.railway.app/mcp
 ```
 
 설치 확인:
@@ -29,13 +29,13 @@ claude mcp get stock-analyzer
 
 ```bash
 # 현재 프로젝트에만 적용 (기본값)
-claude mcp add --transport http stock-analyzer https://fast-stock.up.railway.app/mcp
+claude mcp add --transport http stock-analyzer https://mcp-server-production-8fc7.up.railway.app/mcp
 
 # 모든 프로젝트에 적용
-claude mcp add --transport http --scope user stock-analyzer https://fast-stock.up.railway.app/mcp
+claude mcp add --transport http --scope user stock-analyzer https://mcp-server-production-8fc7.up.railway.app/mcp
 
 # 팀 전체 공유 (.mcp.json에 저장)
-claude mcp add --transport http --scope project stock-analyzer https://fast-stock.up.railway.app/mcp
+claude mcp add --transport http --scope project stock-analyzer https://mcp-server-production-8fc7.up.railway.app/mcp
 ```
 
 ### .mcp.json (프로젝트 공유)
@@ -47,7 +47,7 @@ claude mcp add --transport http --scope project stock-analyzer https://fast-stoc
   "mcpServers": {
     "stock-analyzer": {
       "type": "http",
-      "url": "https://fast-stock.up.railway.app/mcp"
+      "url": "https://mcp-server-production-8fc7.up.railway.app/mcp"
     }
   }
 }
@@ -65,7 +65,7 @@ claude mcp add --transport http --scope project stock-analyzer https://fast-stoc
   "mcpServers": {
     "stock-analyzer": {
       "type": "http",
-      "url": "https://fast-stock.up.railway.app/mcp"
+      "url": "https://mcp-server-production-8fc7.up.railway.app/mcp"
     }
   }
 }
@@ -74,7 +74,7 @@ claude mcp add --transport http --scope project stock-analyzer https://fast-stoc
 ### Claude.ai Custom Connector
 
 1. [claude.ai](https://claude.ai) → Settings → Connectors → **Add connector**
-2. URL 입력: `https://fast-stock.up.railway.app/mcp`
+2. URL 입력: `https://mcp-server-production-8fc7.up.railway.app/mcp`
 3. 인증: 없음
 4. **Save** 클릭
 
@@ -167,7 +167,7 @@ claude mcp add --transport http --scope project stock-analyzer https://fast-stoc
 서버 상태 확인:
 
 ```bash
-curl https://fast-stock.up.railway.app/health
+curl https://mcp-server-production-8fc7.up.railway.app/health
 ```
 
 정상 응답: `{"status": "ok"}`
@@ -178,4 +178,4 @@ curl https://fast-stock.up.railway.app/health
 
 - **Streamlit 대시보드**: https://stock-analyzer.up.railway.app
 - **GitHub**: https://github.com/ccosigi/stock-analyzer
-- **MCP 서버**: https://fast-stock.up.railway.app/mcp
+- **MCP 서버**: https://mcp-server-production-8fc7.up.railway.app/mcp
