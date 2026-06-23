@@ -21,154 +21,204 @@ except ImportError as e:
 
 # Page configuration
 st.set_page_config(
-    page_title="주식 분석 대시보드", 
+    page_title="Stock Analyzer",
+    page_icon="📈",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-
-# Custom CSS for mobile-friendly design
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2rem;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        color: #1f77b4;
-    }
-    .sub-header {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        color: #333;
-    }
-    .metric-container {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 0.5rem 0;
-        border-left: 5px solid #1f77b4;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .bullish {
-        border-left-color: #28a745 !important;
-        background-color: #d4edda;
-    }
-    .bearish {
-        border-left-color: #dc3545 !important;
-        background-color: #f8d7da;
-    }
-    .neutral {
-        border-left-color: #ffc107 !important;
-        background-color: #fff3cd;
-    }
-    .win {
-        border-left-color: #28a745 !important;
-        background-color: #f8d7da;
-    }
-    .lose {
-        border-left-color: #dc3545 !important;
-        background-color: #d4edda;
-    }
-    .info-box {
-        background-color: #f8f9fa;
-        color: #212529;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #007bff;
-        margin: 1rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .info-box h4 {
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-    .info-box ul {
-        color: #6c757d;
-        margin-bottom: 0;
-    }
-    .info-box li {
-        margin-bottom: 0.3rem;
-        color: #495057;
-    }
-    .result-box {
-        background-color: #ffffff;
-        color: #212529;
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 2px solid #007bff;
-        margin: 1rem 0;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .result-box h3 {
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-    .result-box h1 {
-        color: #212529;
-        margin-bottom: 0.5rem;
-    }
-    .result-box p {
-        color: #6c757d;
-        margin-bottom: 0;
-    }
-    .win-box {
-        background-color: #fff8f8;
-        border-color: #dc3545;
-        color: #721c24;
-    }
-    .win-box h3, .win-box h1 {
-        color: #721c24;
-    }
-    .win-box p {
-        color: #6c7b6f;
-    }
-    .lose-box {
-        background-color: #f8fff9;
-        border-color: #28a745;
-        color: #155724;
-    }
-    .lose-box h3, .lose-box h1 {
-        color: #155724;
-    }
-    .lose-box p {
-        color: #856969;
-    }
+/* ── Streamlit 기본 UI 숨김 ── */
+#MainMenu, footer, header { visibility: hidden; }
+.stDeployButton { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
 
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 60px;
-        padding: 0 24px;
-        font-weight: 600;
-    }
-    @media (max-width: 768px) {
-        .main-header {
-            font-size: 1.6rem;
-        }
-        .metric-container {
-            padding: 0.8rem;
-            margin: 0.3rem 0;
-        }
-        .result-box {
-            padding: 1rem;
-        }
-        .info-box {
-            padding: 0.8rem;
-            font-size: 0.9rem;
-        }
-        .info-box h4 {
-            font-size: 1rem;
-        }
-        .stTabs [data-baseweb="tab"] {
-            padding: 0 16px;
-            font-size: 0.9rem;
-        }
+/* ── 전체 배경 ── */
+.stApp { background: #f4f6fa; }
+.block-container { padding: 2rem 2.5rem 3rem; max-width: 1280px; }
 
-    }
+/* ── 앱 헤더 ── */
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+.app-header .logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+}
+.app-header .logo span { color: #4f46e5; }
+.app-header .badge {
+    background: #ede9fe;
+    color: #4f46e5;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* ── 메트릭 카드 ── */
+.metric-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 0.9rem;
+    border-left: 4px solid #cbd5e1;
+    transition: box-shadow 0.15s;
+}
+.metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.metric-card.bullish { border-left-color: #10b981; background: #f0fdf8; }
+.metric-card.bearish { border-left-color: #ef4444; background: #fff5f5; }
+.metric-card.neutral  { border-left-color: #f59e0b; background: #fffbeb; }
+
+.metric-card .mc-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 0.35rem;
+}
+.metric-card .mc-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+}
+.metric-card .mc-value.bullish { color: #059669; }
+.metric-card .mc-value.bearish { color: #dc2626; }
+.metric-card .mc-interp {
+    font-size: 0.82rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* ── 신호 배지 ── */
+.signal-pill {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+.pill-bullish { background: #d1fae5; color: #065f46; }
+.pill-bearish { background: #fee2e2; color: #991b1b; }
+.pill-neutral  { background: #fef3c7; color: #92400e; }
+
+/* ── 인포 박스 ── */
+.info-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+}
+.info-card h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.info-card ul { margin: 0; padding-left: 1.2rem; }
+.info-card li { font-size: 0.85rem; color: #64748b; margin-bottom: 0.3rem; }
+.info-card li strong { color: #334155; }
+.info-card .tip {
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.6rem;
+}
+
+/* ── 결과 박스 ── */
+.result-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+.result-card h4 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; color: #94a3b8; }
+.result-card .big-num { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 0.4rem; }
+.result-card p { font-size: 0.82rem; color: #64748b; margin: 0; }
+.result-card.sell { border-top: 3px solid #ef4444; }
+.result-card.sell .big-num { color: #dc2626; }
+.result-card.buy  { border-top: 3px solid #10b981; }
+.result-card.buy  .big-num { color: #059669; }
+
+/* ── 전략 카드 ── */
+.strategy-card {
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin: 0.5rem 0;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+.strategy-card.sell-strat { border-left: 5px solid #ef4444; }
+.strategy-card.buy-strat  { border-left: 5px solid #10b981; }
+.strategy-card.neutral-strat { border-left: 5px solid #f59e0b; }
+.strategy-card h4 { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem; }
+.strategy-card p { font-size: 0.85rem; color: #64748b; margin: 0.2rem 0; }
+.strategy-card strong { color: #334155; }
+
+/* ── 탭 스타일 ── */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 9px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #64748b;
+}
+.stTabs [aria-selected="true"] {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+}
+
+/* ── 분리선 ── */
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5rem 0; }
+
+/* ── 섹션 제목 ── */
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 1.5rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* ── 모바일 ── */
+@media (max-width: 768px) {
+    .block-container { padding: 1rem 1rem 2rem; }
+    .metric-card .mc-value { font-size: 1.1rem; }
+    .result-card .big-num { font-size: 1.6rem; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -472,33 +522,30 @@ def add_nday_later_prices(signal_days, data, days_after):
     return signal_days
 
 def display_metric(title, value, interpretation, sentiment):
-    css_class = f"metric-container {sentiment}"
+    pill_class = f"pill-{sentiment}"
+    pill_label = {"bullish": "매도 고려", "bearish": "매수 고려", "neutral": "중립"}.get(sentiment, "")
+    value_class = sentiment if sentiment in ("bullish", "bearish") else ""
     st.markdown(f"""
-    <div class="{css_class}">
-        <h3 style="margin-bottom: 0.5rem; color: #333;">{title}</h3>
-        <h2 style="margin-bottom: 0.3rem; color: #000;">{value}</h2>
-        <p style="margin-bottom: 0; font-size: 1rem; color: #555;">{interpretation}</p>  
+    <div class="metric-card {sentiment}">
+        <div class="mc-label">{title}</div>
+        <div class="mc-value {value_class}">{value}
+            <span class="signal-pill {pill_class}">{pill_label}</span>
+        </div>
+        <div class="mc-interp">{interpretation}</div>
     </div>
     """, unsafe_allow_html=True)
 
 # Tab 1: Market Sentiment
 def market_sentiment_tab():
-    # st.markdown('<div class="sub-header">📊 실시간 시장 지표</div>', unsafe_allow_html=True)
-    
-    # Refresh button
-    col_refresh, col_auto = st.columns([1, 2])
+    col_refresh, col_auto = st.columns([1, 3])
     with col_refresh:
-        if st.button("🔄 새로고침", key="refresh_market"):
+        if st.button("새로고침", key="refresh_market"):
             st.cache_data.clear()
             st.rerun()
-    
     with col_auto:
         auto_refresh = st.checkbox("자동 새로고침 (60초)", key="auto_refresh")
-    
-    if auto_refresh:
-        st.info("⏰ 60초마다 자동으로 업데이트됩니다.")
-        
-    with st.spinner("시장 데이터 로딩 중..."):
+
+    with st.spinner("시장 데이터 불러오는 중..."):
         # Get all market data
         qqq_price, qqq_sma = get_qqq_data()
         vix = get_vix_data()
@@ -573,26 +620,22 @@ def market_sentiment_tab():
         else:
             display_metric("🔁 원달러 환율", "N/A", "데이터 로딩 실패", "neutral")
 
-    # Information box
     st.markdown("""
-    <div class="info-box">
-        <h4>📖 지표 설명</h4>
+    <div class="info-card">
+        <h4>지표 설명</h4>
         <ul>
-            <li><strong>공포 & 탐욕 지수</strong>: 0-100 범위의 시장 심리 지표 (0=극도공포, 100=극도탐욕)</li>
-            <li><strong>VIX</strong>: 시장 변동성 예상 지수 (낮을수록 안정, 높을수록 불안)</li>
-            <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 </li>
-            <li><strong>RSI</strong>: 상대강도지수 (30 이하 과매도, 70 이상 과매수)</li>
-            <li><strong>QQQ vs 200일 이동 평균선</strong>: 나스닥 ETF의 장기 추세 분석</li>
-            <li><strong>버핏 지수</strong>: 미국 주식 시가총액 대비 GDP 비율 (100% 이하 저평가, 180% 이상 고평가)</li>
-            <li><strong>원달러 환율</strong>: USD/KRW 환율 (상승시 원화약세, 하락시 원화강세)</li>
+            <li><strong>공포 & 탐욕 지수</strong>: 0–100 시장 심리 지표 (0=극도 공포, 100=극도 탐욕)</li>
+            <li><strong>VIX</strong>: 시장 변동성 예상 지수. 낮을수록 안정, 높을수록 불안</li>
+            <li><strong>Put/Call 비율</strong>: 풋옵션 대비 콜옵션 거래량 비율</li>
+            <li><strong>RSI</strong>: 상대강도지수 — 30 이하 과매도, 70 이상 과매수</li>
+            <li><strong>QQQ vs 200일 이동평균</strong>: 나스닥 ETF 장기 추세 분석</li>
+            <li><strong>버핏 지수</strong>: 미국 시가총액 / GDP. 100% 이하 저평가, 180% 이상 고평가</li>
+            <li><strong>원달러 환율</strong>: 상승 시 원화 약세, 하락 시 원화 강세</li>
         </ul>
-        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
-            💡 <strong>팁</strong>: 여러 지표를 종합적으로 해석하여 투자 판단에 활용하세요.
-        </p>
+        <div class="tip">여러 지표를 종합적으로 해석하여 투자 판단에 활용하세요.</div>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Auto refresh logic
+
     if auto_refresh:
         import time
         time.sleep(60)
@@ -600,15 +643,14 @@ def market_sentiment_tab():
 
 # Tab 2: N-Day Drop Analysis
 def nday_analysis_tab():
-    # st.markdown('<div class="sub-header">📉 N일 후 반등 여부 분석기</div>', unsafe_allow_html=True)
-    
     st.markdown("""
-    <div class="info-box">
-        <h4>💡 분석 개요</h4>
-        <p>특정 주식이 특정 퍼센트 이상 하락한 날을 기준으로, <strong>N일 후 주가의 방향(상승/하락)</strong>을 확인합니다.</p>
-        <p><strong>활용법</strong>: 주가 하락 시 즉시 매도할지, 며칠 기다릴지, 오히려 매수할지 통계적으로 판단할 수 있습니다.</p>
-        <p><strong>해외 주식</strong>: 티커로 검색 &nbsp;&nbsp;&nbsp;&nbsp; <strong>국내 주식</strong>: 종목명 검색이 안될시 종목 코드 입력</p>
-        
+    <div class="info-card">
+        <h4>분석 개요</h4>
+        <ul>
+            <li>특정 주식이 N% 이상 하락한 날 기준으로, <strong>며칠 후 주가 방향</strong>을 통계적으로 분석합니다.</li>
+            <li><strong>해외 주식</strong>: 티커 입력 (QQQ, AAPL ...) &nbsp;|&nbsp; <strong>국내 주식</strong>: 종목명 또는 6자리 코드</li>
+        </ul>
+        <div class="tip">주가 하락 시 즉시 매도할지, 기다릴지 통계 근거로 판단하세요.</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -766,52 +808,51 @@ def nday_analysis_tab():
                 with result_cols[0]:
                     win_percentage = (win_count / total_signals) * 100
                     st.markdown(f"""
-                    <div class="result-box win-box">
-                        <h3>🔴 (즉시 매도가 유리)</h3>
-                        <h1>{win_count}회 ({win_percentage:.1f}%)</h1>
-                        <p>하락일에 즉시 매도했다면 {days_after}일 후보다 높은 가격에 판 것</p>
+                    <div class="result-card sell">
+                        <h4>즉시 매도가 유리했던 경우</h4>
+                        <div class="big-num">{win_percentage:.1f}%</div>
+                        <p>{win_count}회 — 하락일 즉시 매도 시 {days_after}일 후보다 유리</p>
                     </div>
                     """, unsafe_allow_html=True)
-                
+
                 with result_cols[1]:
                     lose_percentage = (lose_count / total_signals) * 100
                     st.markdown(f"""
-                    <div class="result-box lose-box">
-                        <h3>🟢 (기다리는 것이 유리)</h3>
-                        <h1>{lose_count}회 ({lose_percentage:.1f}%)</h1>
-                        <p>{days_after}일 후 가격이 하락일 보다 높음</p>
+                    <div class="result-card buy">
+                        <h4>기다리는 것이 유리했던 경우</h4>
+                        <div class="big-num">{lose_percentage:.1f}%</div>
+                        <p>{lose_count}회 — {days_after}일 후 가격이 하락일보다 높았음</p>
                     </div>
                     """, unsafe_allow_html=True)
-                
-                # 전략 제안
-                st.markdown("---")
-                st.subheader("💰 투자 전략 제안")
-                
+
+                st.markdown('<hr>', unsafe_allow_html=True)
+                st.markdown('<div class="section-title">투자 전략 제안</div>', unsafe_allow_html=True)
+
                 ticker_display = company_name if company_name else processed_ticker
-                
+
                 if winrate > 0.55:
-                    strategy_color = "win-box"
-                    strategy_text = f"""
-                    <h4>📉 즉시 매도 전략 추천</h4>
-                    <p><strong>{rate:.1f}%</strong>의 확률로 즉시 매도가 유리했습니다.</p>
-                    <p>💡 <strong>추천</strong>: {ticker_display} 종목이 {drop_threshold}% 이상 하락하면 매도를 고려하세요.</p>
-                    """
+                    strategy_html = f"""
+                    <div class="strategy-card sell-strat">
+                        <h4>즉시 매도 전략 추천</h4>
+                        <p><strong>{rate:.1f}%</strong> 확률로 즉시 매도가 유리했습니다.</p>
+                        <p>{ticker_display} 종목이 {drop_threshold}% 이상 하락하면 매도를 고려하세요.</p>
+                    </div>"""
                 elif winrate < 0.45:
-                    strategy_color = "lose-box"
-                    strategy_text = f"""
-                    <h4>⏰ 대기 전략 추천</h4>
-                    <p><strong>{(100-rate):.1f}%</strong>의 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
-                    <p>💡 <strong>추천</strong>: {ticker_display} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일 정도는 기다려보세요.</p>
-                    """
+                    strategy_html = f"""
+                    <div class="strategy-card buy-strat">
+                        <h4>대기 전략 추천</h4>
+                        <p><strong>{(100-rate):.1f}%</strong> 확률로 {days_after}일 기다리는 것이 유리했습니다.</p>
+                        <p>{ticker_display} 종목이 {drop_threshold}% 이상 하락해도 {days_after}일은 기다려보세요.</p>
+                    </div>"""
                 else:
-                    strategy_color = "result-box"
-                    strategy_text = f"""
-                    <h4>⚖️ 중립적 결과</h4>
-                    <p>즉시 매도와 대기 전략의 성공률이 비슷합니다 ({rate:.1f}% vs {(100-rate):.1f}%).</p>
-                    <p>💡 <strong>추천</strong>: 다른 지표와 함께 종합적으로 판단하세요.</p>
-                    """
-                
-                st.markdown(f'<div class="{strategy_color}">{strategy_text}</div>', unsafe_allow_html=True)
+                    strategy_html = f"""
+                    <div class="strategy-card neutral-strat">
+                        <h4>중립적 결과</h4>
+                        <p>즉시 매도 {rate:.1f}% vs 대기 {(100-rate):.1f}% — 성공률이 비슷합니다.</p>
+                        <p>다른 지표와 함께 종합적으로 판단하세요.</p>
+                    </div>"""
+
+                st.markdown(strategy_html, unsafe_allow_html=True)
                 
                 # Recent examples
                 if len(signal_days) > 0:
@@ -879,19 +920,15 @@ def nday_analysis_tab():
                     median_change = signal_days[f'Price_Change_{days_after}D'].median()
                     st.metric(f"{days_after}일 변화 중간값", f"{median_change:+.2f}%")
                 
-                # Information box
                 st.markdown("""
-                <div class="info-box">
-                    <h4>⚠️ 주의사항</h4>
+                <div class="info-card">
+                    <h4>주의사항</h4>
                     <ul>
-                        <li>이 분석은 과거 데이터를 바탕으로 한 통계적 분석입니다.</li>
-                        <li>실제 투자 결정시에는 다른 기술적/기본적 분석과 함께 고려하세요.</li>
+                        <li>과거 데이터 기반 통계 분석입니다. 미래 수익을 보장하지 않습니다.</li>
+                        <li>실제 투자 결정 시 기술적·기본적 분석과 함께 활용하세요.</li>
                         <li>시장 상황에 따라 과거 패턴이 반복되지 않을 수 있습니다.</li>
-                        <li>미국 주식의 경우 환율 변동 등 추가 요인을 고려해야 합니다.</li>
+                        <li>미국 주식은 환율 변동 등 추가 요인을 고려해야 합니다.</li>
                     </ul>
-                    <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
-                        💡 <strong>권장</strong>: 이 분석 결과를 다른 투자 지표와 함께 종합적으로 활용하세요.
-                    </p>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -910,25 +947,27 @@ def nday_analysis_tab():
 
 # Main App
 def main():
-    st.markdown('<h1 class="main-header">주식 시장 분석 대시보드</h1>', unsafe_allow_html=True)
-    
-    # Create tabs
-    tab1, tab2 = st.tabs(["📊 시장 감정", "📉 N일 후 분석"])
-    
+    st.markdown("""
+    <div class="app-header">
+        <div class="logo">Stock<span>Analyzer</span></div>
+        <span class="badge">Beta</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    tab1, tab2 = st.tabs(["시장 심리 지표", "N일 후 하락 분석"])
+
     with tab1:
         market_sentiment_tab()
-    
+
     with tab2:
         nday_analysis_tab()
-    
-    # Footer
-    st.markdown("---")
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
     st.markdown(f"""
-    <div style="text-align: center; color: #666; font-size: 0.9rem;">
-        <p>📊 <strong>주식 분석 대시보드</strong> | 마지막 업데이트: {current_time}</p>
-        <p>🌏 <strong>지원 주식</strong>: 미국 주식 (QQQ, SPY, AAPL 등 티커검색) + 한국 주식</p>
-        <p>⚠️ <em>이 도구는 참고 용도이며, 실제 투자 결정의 유일한 근거로 사용하지 마세요.</em></p>
+    <hr>
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:#94a3b8; padding: 0 0.25rem;">
+        <span>StockAnalyzer &nbsp;·&nbsp; 미국·한국 주식, 인덱스, 코인 지원</span>
+        <span>업데이트 {current_time} &nbsp;·&nbsp; 투자 참고용, 실제 투자 결정의 근거로 사용하지 마세요</span>
     </div>
     """, unsafe_allow_html=True)
 
