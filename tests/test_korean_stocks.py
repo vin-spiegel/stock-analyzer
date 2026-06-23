@@ -73,4 +73,4 @@ async def test_market_indicators_structure(mcp_client):
         assert "signal" in item, f"{key}에 signal 없음"
         assert item["signal"] in ("bullish", "bearish", "neutral")
     assert "signal" in data["usd_krw"]
-    assert "timestamp" in data
+    assert "retrieved_at" in data

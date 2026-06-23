@@ -307,7 +307,8 @@ def get_market_indicators() -> dict:
             "label": usd_label,
             "signal": usd_signal,
         },
-        "timestamp": datetime.now().isoformat(),
+        "retrieved_at": datetime.now().isoformat(),
+        "note": "가격/지수 데이터는 마지막 거래일 종가 기준입니다. 시장 휴장 중에는 직전 거래일 데이터가 반환됩니다.",
     }
 
 
@@ -441,6 +442,9 @@ def get_stock_price(ticker_or_name: str) -> dict:
             if not math.isnan(float(raw_vol)):
                 vol = int(raw_vol)
 
+        last_date = close_series.index[-1]
+        data_as_of = last_date.strftime("%Y-%m-%d") if hasattr(last_date, "strftime") else str(last_date)[:10]
+
         return {
             "ticker": processed_ticker,
             "company_name": display_name,
@@ -449,6 +453,7 @@ def get_stock_price(ticker_or_name: str) -> dict:
             "change_pct": change_pct,
             "volume": vol,
             "market": "KRX" if is_korean else "US",
+            "data_as_of": data_as_of,
         }
     except Exception as e:
         return {"error": str(e), "ticker": processed_ticker}
