@@ -1,0 +1,10 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "bash start_mcp.sh",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100
+  }
+}
