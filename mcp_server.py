@@ -425,7 +425,14 @@ def get_stock_price(ticker_or_name: str) -> dict:
         except Exception:
             pass
 
-        currency = info.get("currency", "KRW" if processed_ticker.endswith(".KS") else "USD")
+        _kr_ticker = processed_ticker.upper()
+        is_korean = (
+            processed_ticker.endswith(".KS")
+            or processed_ticker.endswith(".KQ")
+            or _kr_ticker in {"^KS11", "^KQ11", "^KS200"}
+            or info.get("currency") == "KRW"
+        )
+        currency = info.get("currency", "KRW" if is_korean else "USD")
         display_name = company_name or info.get("shortName") or info.get("longName") or processed_ticker
 
         vol = None
@@ -441,7 +448,7 @@ def get_stock_price(ticker_or_name: str) -> dict:
             "currency": currency,
             "change_pct": change_pct,
             "volume": vol,
-            "market": "KRX" if processed_ticker.endswith(".KS") else "US",
+            "market": "KRX" if is_korean else "US",
         }
     except Exception as e:
         return {"error": str(e), "ticker": processed_ticker}
