@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from fastmcp import FastMCP
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, PlainTextResponse
 
 from stock_library import process_ticker_input, KOREAN_STOCKS, search_stocks
 
@@ -29,6 +29,14 @@ mcp = FastMCP("Stock Analyzer")
 @mcp.custom_route("/health", methods=["GET"])
 async def health(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok"})
+
+
+@mcp.custom_route("/agents.md", methods=["GET"])
+async def agents_md(request: Request) -> PlainTextResponse:
+    agents_path = os.path.join(os.path.dirname(__file__), "agents.md")
+    with open(agents_path, encoding="utf-8") as f:
+        content = f.read()
+    return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 
 
 # ── 데이터 수집 내부 함수 ──────────────────────────────────────────────────────
